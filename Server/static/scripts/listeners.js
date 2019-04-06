@@ -15,3 +15,17 @@ $(document).ready(function () {
         server_shutdown();
     });
 });
+
+//Mouseover event atachment and handling
+$(document).ready(function() {
+    $("button").on("mouseenter",function() {
+        $(this).css({'backgroundColor' : "lightsteelblue"});
+    });
+});
+
+//Mouseout event atachment and handling
+$(document).ready(function() {
+    $("button").on("mouseleave",function() {
+        $(this).css({'backgroundColor' : "steelblue"});
+    });
+});

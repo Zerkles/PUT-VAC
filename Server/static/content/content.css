@@ -50,3 +50,11 @@
     border-radius: 10px;
 
 }
+
+button {
+    padding: 0;
+    border: none;
+    color: white;
+    background-color: steelblue;
+    transition: background-color ease-in 300ms;
+}
