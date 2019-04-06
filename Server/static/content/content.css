@@ -1,0 +1,52 @@
+.Content_Container {
+    position: absolute;
+    top: 50px;
+    left: 0;
+
+    font-family: gliphicons-halflings-regular, monospace;
+}
+
+#But_Connect {
+    position: absolute;
+    top: 20px;
+    left: 10px;
+
+    width: 160px;
+
+    font-size: 30px;
+}
+
+#But_Disconnect {
+    position: absolute;
+    top: 70px;
+    left: 10px;
+
+    width: 160px;
+
+    font-size: 30px;
+}
+
+#But_Shutdown {
+    position: absolute;
+    top: 120px;
+    left: 10px;
+
+    width: 160px;
+
+    font-size: 30px;
+}
+
+#test {
+    position: absolute;
+    top: 120px;
+    left: 200px;
+}
+
+#Table {
+    position: absolute;
+    top: 20px;
+    left: 200px;
+    background-color: steelblue;
+    border-radius: 10px;
+
+}

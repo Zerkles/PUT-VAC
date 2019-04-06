@@ -1,12 +1,16 @@
 from flask import Flask
 from flask import request
+from flask_cors import CORS, cross_origin
+from flask import Flask, render_template
 
 import socket
 from multiprocessing import Process
 import atexit
 import time
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 port = 55000
 processes = dict()
@@ -53,7 +57,7 @@ def proc_listen(proc_socket):
     # return
 
 
-@app.route('/connect/')
+@app.route('/VAC/connect')
 def connect():
     global port
 
@@ -67,36 +71,43 @@ def connect():
         processes[str(request.remote_addr)] = proc
         proc.start()
         print("Client connected: " + request.remote_addr)
-        return str(port - 1), 200
+        return 'You are using port: ' + str(port - 1), 200
     else:
         client_port = client_sockets[str(request.remote_addr)].getsockname()[1]
         return 'You are using port: ' + str(client_port), 200
 
 
-@app.route('/disconnect/')
+@app.route('/VAC/disconnect')
 def disconnect():
     global port
 
     if str(request.remote_addr) in client_sockets.keys():
-        print('Port: ' + str(port))
+        client_port = client_sockets[str(request.remote_addr)].getsockname()[1]
+        print('Port: ' + str(client_port))
         processes[str(request.remote_addr)].terminate()
         processes[str(request.remote_addr)].join()
         del processes[str(request.remote_addr)]
         del client_sockets[str(request.remote_addr)]
+
         print("Client disconnected: " + request.remote_addr)
         return 'Disconnect successful', 200
     else:
         return 'You are not connected', 200
 
 
-@app.route('/')
+@app.route('/VAC/')
 def hello_world():
     print("It's working!")
     return "I'm am working!", 200
 
 
-@app.route('/exit')
-def exit_server():
+@app.route('/VAC/manager')
+def manager():
+    return render_template('Index.html', name='VAC Server Manager')
+
+
+@app.route('/VAC/shutdown')
+def server_shutdown():
     global stop_all
 
     stop_all = True
