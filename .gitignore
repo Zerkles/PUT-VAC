@@ -70,3 +70,11 @@ fastlane/readme.md
 __pycache__/
 venv/
 server/.idea/
+
+
+#Client
+
+ClientTCP/.gradle/
+ClientTCP/.idea/
+ClientTCP/app/Debug/
+ClientTCP/gradle/
