@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from flask import Flask
 from flask import request
 from flask_cors import CORS, cross_origin
@@ -9,12 +11,13 @@ import atexit
 import time
 
 app = Flask(__name__, template_folder='templates')
+# cors = CORS(app)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 port = 55000
-processes = dict()
-client_sockets = dict()
+processes: Dict[str, Process] = dict()
+client_sockets: Dict[str, socket.socket] = dict()
 
 
 def cleanup():
@@ -36,22 +39,27 @@ def proc_listen(proc_socket):
     while True:
         msg = str()
         try:
-            recv_size = int(conn.recv(10))
-            print(str('Size: ' + str(recv_size)))
-            while True:
-                try:
-                    if recv_size > 1024:
-                        msg_recv = conn.recv(1024)
-                        recv_size -= 1024
-                        msg += str(msg_recv)
-                    else:
-                        msg_recv = conn.recv(recv_size)
-                        msg += msg_recv.decode('utf-8')
+            recv_data = conn.recv(10)
+            print(recv_data)
+            try:
+                recv_size = int(recv_data)
+                print(str('Size: ' + str(recv_size)))
+                while True:
+                    try:
+                        if recv_size > 1024:
+                            msg_recv = conn.recv(1024)
+                            recv_size -= 1024
+                            msg += str(msg_recv)
+                        else:
+                            msg_recv = conn.recv(recv_size)
+                            msg += msg_recv.decode('utf-8')
+                            break
+                    except TypeError:
+                        print('Type error!')
                         break
-                except TypeError:
-                    print('Type error!')
-                    break
-            print('Received:' + msg)
+                print('Received: ' + msg)
+            except ValueError:
+                print("Not int!")
         except OSError:
             pass
     # return
@@ -71,7 +79,7 @@ def connect():
         processes[str(request.remote_addr)] = proc
         proc.start()
         print("Client connected: " + request.remote_addr)
-        return 'You are using port: ' + str(port - 1), 200
+        return str(port - 1), 200
     else:
         client_port = client_sockets[str(request.remote_addr)].getsockname()[1]
         return 'You are using port: ' + str(client_port), 200
@@ -96,7 +104,13 @@ def disconnect():
 
 
 @app.route('/VAC/')
-def hello_world():
+def test_vac():
+    print("It's working!")
+    return "I'm am working!", 200
+
+
+@app.route('/')
+def test():
     print("It's working!")
     return "I'm am working!", 200
 
@@ -115,7 +129,7 @@ def server_shutdown():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
-    print("Shutting server down!")
+    print("Server shuttinh down...")
     return 'Server shutting down...', 200
 
 
