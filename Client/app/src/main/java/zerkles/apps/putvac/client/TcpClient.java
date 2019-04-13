@@ -11,7 +11,6 @@ class TcpClient {
     private static final String TAG = TcpClient.class.getSimpleName();
     String SERVER_IP = "0.0.0.0"; //server IP address
     int SERVER_PORT = 0;
-    private boolean isConnected = false;
     Socket socket = new Socket();
 
     private DataOutputStream outputStream;
@@ -19,30 +18,16 @@ class TcpClient {
     /**
      * Constructor of the class. OnMessagedReceived listens for the messages received from server
      */
-    TcpClient() { }
-
-    /**
-     * Sends the message entered by client to the server
-     *
-     * @param message text entered by client
-     */
-    public void sendString(final String message) {
-        if (outputStream != null) {
-            Log.d(TAG, "Sending: " + message);
-            try {
-                outputStream.write(message.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    TcpClient() {
     }
+
 
     /**
      * Sends the message entered by client to the server
      *
      * @param bytes byte sequence entered by client
      */
-    public void sendBytes(final byte[] bytes) {
+    void sendBytes(final byte[] bytes) {
         if (outputStream != null) {
             Log.d(TAG, "Sending: bytes");
             try {
@@ -56,17 +41,19 @@ class TcpClient {
     /**
      * Sends the message entered by client to the server
      *
+     * @param message text entered by client
+     */
+    void sendString(final String message) {
+        this.sendBytes(message.getBytes());
+    }
+
+    /**
+     * Sends the message entered by client to the server
+     *
      * @param number value entered by client
      */
-    public void sendNumber(final int number) {
-        if (outputStream != null) {
-            Log.d(TAG, "Sending: bytes");
-            try {
-                outputStream.write(String.valueOf(number).getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    void sendNumber(final int number) {
+        this.sendBytes(String.valueOf(number).getBytes());
     }
 
     /**
@@ -91,10 +78,17 @@ class TcpClient {
             socket = new Socket(serverAddr, SERVER_PORT);
             socket.setSendBufferSize(10000000);
 
-            isConnected = socket.isConnected();
             outputStream = new DataOutputStream(socket.getOutputStream());
         } catch (Exception e) {
-            Log.e("TCP", "C: Error", e);
+            e.printStackTrace();
+        }
+    }
+
+    boolean is_connected() {
+        if (socket != null) {
+            return socket.isConnected();
+        } else {
+            return false;
         }
     }
 }
