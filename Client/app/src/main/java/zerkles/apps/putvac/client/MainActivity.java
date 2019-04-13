@@ -15,15 +15,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    static TcpClient mTcpClient;
+    static TcpClient tcpClient;
     Button btn_send, btn_connect, btn_disconnect, btn_camera;
     static EditText ed_txt, ed_txt2, ed_txt3;
     TextView tv_txt, tv_txt2;
@@ -34,24 +32,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btn_send = (Button) findViewById(R.id.btn_send);
-        btn_connect = (Button) findViewById(R.id.btn_connect);
-        btn_disconnect = (Button) findViewById(R.id.btn_disconnect);
-        btn_camera = (Button) findViewById(R.id.btn_camera);
-        ed_txt = (EditText) findViewById(R.id.ed_txt);
+        btn_send = findViewById(R.id.btn_send);
+        btn_connect = findViewById(R.id.btn_connect);
+        btn_disconnect = findViewById(R.id.btn_disconnect);
+        btn_camera = findViewById(R.id.btn_camera);
+        ed_txt = findViewById(R.id.ed_txt);
         //ed_txt2 = (EditText) findViewById(R.id.ed_txt2);
-        ed_txt3 = (EditText) findViewById(R.id.ed_txt3);
-        tv_txt = (TextView) findViewById(R.id.tv_txt);
-        tv_txt2 = (TextView) findViewById(R.id.tv_txt2);
+        ed_txt3 = findViewById(R.id.ed_txt3);
+        tv_txt = findViewById(R.id.tv_txt);
+        tv_txt2 = findViewById(R.id.tv_txt2);
 
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //sends the message to the server
-                if (mTcpClient != null && ed_txt3.getText()!=null) {
-                    String text=ed_txt3.getText().toString();
-                    mTcpClient.sendMessage(String.valueOf(text.length()));
-                    mTcpClient.sendMessage(text);
+                if (tcpClient != null && ed_txt3.getText() != null) {
+                    String text = ed_txt3.getText().toString();
+                    if (!text.isEmpty()) {
+                        new SendTask().execute(text);
+                    }
                 }
             }
         });
@@ -60,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if (actualConnection == null) {
                     actualConnection = new ConnectTask().execute("");
                 } else {
@@ -73,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 startCameraActivity();
             }
         });
@@ -81,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
         btn_disconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mTcpClient != null) {
-                    mTcpClient.stopClient();
+                if (tcpClient != null) {
+                    tcpClient.stopClient();
                 }
             }
         });
@@ -94,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.INTERNET},
                     4);
         }
-        else {}
     }
 
 
@@ -104,40 +100,32 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("STATE", "onRESUME");
 
-        if (actualConnection != null && mTcpClient != null) {
-            if (mTcpClient.socket.isConnected()) {
+        if (actualConnection != null && tcpClient != null) {
+            if (tcpClient.socket.isConnected()) {
                 tv_txt.setText(" Connected: YES");
             } else {
                 tv_txt.setText(" Connected: NO");
             }
 
-            tv_txt2.setText(" Connection Addres: " + mTcpClient.socket.getInetAddress());
+            tv_txt2.setText(" Connection Addres: " + tcpClient.socket.getInetAddress());
         }
     }
 
     public class ConnectTask extends AsyncTask<String, String, TcpClient> {
-
         @Override
         protected TcpClient doInBackground(String... message) {
 
             //we create a TCPClient object
-            mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
-                @Override
-                //here the messageReceived method is implemented
-                public void messageReceived(String message) {
-                    //this method calls the onProgressUpdate
-                    publishProgress(message);
-                }
-            });
+            tcpClient = new TcpClient();
 
-            String port=getPort();
+            String port = getPort();
             if (getInputIP() != null) {
-                mTcpClient.SERVER_IP = getInputIP();
+                tcpClient.SERVER_IP = getInputIP();
             }
             if (port != null) {
-                mTcpClient.SERVER_PORT = Integer.parseInt(port);
+                tcpClient.SERVER_PORT = Integer.parseInt(port);
             }
-            mTcpClient.run();
+            tcpClient.connect();
 
             return null;
         }
@@ -158,9 +146,9 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        String getPort(){
-            try{
-                URL url = new URL("http://"+getInputIP()+"/VAC/connect");
+        String getPort() {
+            try {
+                URL url = new URL("http://" + getInputIP() + "/VAC/connect");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
 
@@ -176,31 +164,32 @@ public class MainActivity extends AppCompatActivity {
                     // Tutaj w odpowiedzi będzie port socket'u
                     while ((inputLine = in.readLine()) != null) {
                         // inputLine to port socket'u (trzeba przerobić ze string na int)
-                        if(inputLine != null) {
+                        if (inputLine != null) {
                             Log.d("PORT:", inputLine);
                             return inputLine;
                         }
                     }
                 }
+            } catch (Exception e) {
+                Log.d("HTTP_CONNECTION", e.toString() + "ERR");
             }
-            catch(Exception e){Log.d("HTTP_CONNECTION",e.toString()+"ERR");}
-        return null;
+            return null;
         }
     }
 
-
+    public class SendTask extends AsyncTask<String, byte[], byte[]> {
+        @Override
+        protected byte[] doInBackground(String... strings) {
+            tcpClient.sendNumber(strings[0].length());
+            tcpClient.sendString(strings[0]);
+            return null;
+        }
+    }
 
     public void startCameraActivity() {
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
     }
-
-//    public Integer getInputPort() {
-//        if (ed_txt2.getText() != null) {
-//            return Integer.parseInt(ed_txt2.getText().toString());
-//        } else return null;
-//
-//    }
 
     public String getInputIP() {
         if (ed_txt.getText() != null) {
