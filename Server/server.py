@@ -11,6 +11,7 @@ import atexit
 import time
 import cv2
 import numpy as np
+import conversion
 
 # app init
 app = Flask(__name__, template_folder='templates')
@@ -21,10 +22,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # increases with every connect request
 port: int = 55000
 
-# Dictionaries
 manager_thread = None
 terminate_proc_manager = False
 global_lock = Lock()
+
+# Dictionaries
 processes: Dict[str, Process] = dict()
 client_sockets: Dict[str, socket.socket] = dict()
 
@@ -52,9 +54,7 @@ def cleanup():
 
 
 # Receives data in chunks (max 1024 bytes) and merges it
-def receive_data(conn, recv_size: int):
-    import conversion
-
+def receive_data(conn, recv_size: int, converter: conversion.Vac):
     msg = bytes()
     while True:
         try:
@@ -80,7 +80,7 @@ def receive_data(conn, recv_size: int):
     img = cv2.imdecode(buf=array, flags=cv2.IMREAD_COLOR)
 
     try:
-        conversion.conversion_add_image(img)
+        converter.feed_image(img)
     except Exception as e:
         print(str(e))
     return msg, img
@@ -92,6 +92,8 @@ preview_num = int(1)
 # Listen function for process
 def proc_listen(proc_socket):
     global preview_num
+
+    converter = conversion.Vac()
 
     conn, address = proc_socket.accept()
     print('Client connected!')
@@ -105,11 +107,11 @@ def proc_listen(proc_socket):
             try:
                 recv_size = int(recv_data)
                 print(str('Size: ' + str(recv_size)))
-                msg, img = receive_data(conn, recv_size)
+                msg, img = receive_data(conn, recv_size, converter)
 
-                cv2.imshow("Preview " + str(len(img) + preview_num), img)
-                cv2.waitKey(40)
-                preview_num += 1
+                # cv2.imshow("Preview " + str(len(img) + preview_num), img)
+                # cv2.waitKey(40)
+                # preview_num += 1
 
                 if msg == TypeError:
                     continue
@@ -130,27 +132,25 @@ def proc_listen(proc_socket):
 
 @app.route('/VAC/connect')
 def connect():
-    import conversion
-
     global port
     global global_lock
 
     if not str(request.remote_addr) in client_sockets.keys():
         print('Port: ' + str(port))
-        client_sockets[str(request.remote_addr)] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_sockets[str(request.remote_addr)] = sock
         client_sockets[str(request.remote_addr)].bind(('', port))
         client_sockets[str(request.remote_addr)].listen(1)
         port += 1
 
         # Critical section
         global_lock.acquire()
-        proc = Process(target=proc_listen, args=(client_sockets[str(request.remote_addr)],))
+        proc = Process(target=proc_listen, args=(sock,))
         processes[str(request.remote_addr)] = proc
         proc.start()
         global_lock.release()
         # End critical section
 
-        conversion.start_conversion()
         print("Client connected: " + request.remote_addr)
         return str(port - 1), 200
     else:
@@ -202,6 +202,7 @@ def server_shutdown():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
+
     print("Server shutting down...")
     return 'Server shutting down...', 200
 
