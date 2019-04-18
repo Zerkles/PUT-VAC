@@ -14,10 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,11 +56,10 @@ public class MainActivity extends AppCompatActivity {
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (actualConnection == null) {
-                    actualConnection = new ConnectTask().execute("");
+                if (tcpClient != null) {
+                    new ReconnectTask().execute("");
                 } else {
-                    actualConnection.cancel(true);
-                    actualConnection = new ConnectTask().execute("");
+                    new ConnectTask().execute("");
                 }
             }
         });
@@ -78,9 +74,7 @@ public class MainActivity extends AppCompatActivity {
         btn_disconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (tcpClient != null) {
-                    tcpClient.stopClient();
-                }
+                new DisconnectTask().execute("");
             }
         });
 
@@ -111,10 +105,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class ConnectTask extends AsyncTask<String, String, TcpClient> {
-        @Override
-        protected TcpClient doInBackground(String... message) {
 
+    // -------- connection methods
+
+    public static void disconnect() {
+        if (tcpClient != null) {
+            HttpClient.sendRequest("GET", tcpClient.SERVER_IP, "/VAC/disconnect");
+            if (tcpClient != null) {
+                tcpClient.stopClient();
+                tcpClient = null;
+            }
+        }
+    }
+
+
+    // -------- getter methods
+
+    public static String getInputIP() {
+        if (ed_txt.getText() != null) {
+            return (ed_txt.getText().toString());
+        } else {
+            return null;
+        }
+    }
+
+    public static String getPort() {
+        return HttpClient.sendRequest("GET", getInputIP(), "/VAC/connect");
+    }
+
+
+    // -------- task classes
+
+    public static class ConnectTask extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... message) {
             //we create a TCPClient object
             tcpClient = new TcpClient();
 
@@ -129,55 +153,31 @@ public class MainActivity extends AppCompatActivity {
 
             return null;
         }
+    }
 
+    public static class DisconnectTask extends AsyncTask<String, String, String> {
         @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-            //response received from server
-            Log.d("test", "response: " + values[0]);
-            //process server response here....
-
+        protected String doInBackground(String... message) {
+            disconnect();
+            return null;
         }
+    }
 
-        public String getInputIP() {
-            if (MainActivity.ed_txt.getText() != null) {
-                return (MainActivity.ed_txt.getText().toString());
-            } else return null;
+    public static class ReconnectTask extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... message) {
+            if (tcpClient != null) {
+                if (!Objects.equals(getInputIP(), tcpClient.SERVER_IP)) {
+                    disconnect();
 
-        }
-
-        String getPort() {
-            try {
-                URL url = new URL("http://" + getInputIP() + "/VAC/connect");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-
-                // Tutaj wysyła zapytanie
-                int responseCode = conn.getResponseCode();
-
-                // Tutaj sprawdzamy czy sukces
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    String inputLine;
-                    StringBuffer response = new StringBuffer();
-
-                    // Tutaj w odpowiedzi będzie port socket'u
-                    while ((inputLine = in.readLine()) != null) {
-                        // inputLine to port socket'u (trzeba przerobić ze string na int)
-                        if (inputLine != null) {
-                            Log.d("PORT:", inputLine);
-                            return inputLine;
-                        }
-                    }
+                    new ConnectTask().execute("");
                 }
-            } catch (Exception e) {
-                Log.d("HTTP_CONNECTION", e.toString() + "ERR");
             }
             return null;
         }
     }
 
-    public class SendTask extends AsyncTask<String, byte[], byte[]> {
+    public static class SendTask extends AsyncTask<String, byte[], byte[]> {
         @Override
         protected byte[] doInBackground(String... strings) {
             tcpClient.sendNumber(strings[0].length());
@@ -186,16 +186,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    // -------- activity methods
+
     public void startCameraActivity() {
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
-    }
-
-    public String getInputIP() {
-        if (ed_txt.getText() != null) {
-            return (ed_txt.getText().toString());
-        } else return null;
-
     }
 }
 

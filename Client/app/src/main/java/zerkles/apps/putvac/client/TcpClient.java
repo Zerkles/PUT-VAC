@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+
 class TcpClient {
     private static final String TAG = TcpClient.class.getSimpleName();
     String SERVER_IP = "0.0.0.0"; //server IP address
@@ -16,7 +17,7 @@ class TcpClient {
     private DataOutputStream outputStream;
 
     /**
-     * Constructor of the class. OnMessagedReceived listens for the messages received from server
+     * Constructor of the class
      */
     TcpClient() {
     }

@@ -9,6 +9,8 @@ from multiprocessing import Process
 from threading import Thread, Lock
 import atexit
 import time
+import cv2
+import numpy as np
 
 # app init
 app = Flask(__name__, template_folder='templates')
@@ -49,37 +51,51 @@ def cleanup():
     return
 
 
+# Receives data in chunks (max 1024 bytes) and merges it
 def receive_data(conn, recv_size: int):
-    msg = str()
+    import conversion
+
+    msg = bytes()
     while True:
         try:
             # Data receiving
-            if recv_size > 1024:
-                msg_recv = conn.recv(1024)
+            if recv_size >= 4096:
+                msg_recv = conn.recv(4096)
             else:
                 msg_recv = conn.recv(recv_size)
-
             # Length 0 informs of an error/connection end
             if len(msg_recv) == 0:
                 return 'disconnected'
 
-            msg += str(msg_recv)
-            print(str(msg_recv))
+            msg += bytes(msg_recv)
 
-            recv_size -= 1024
+            recv_size -= len(msg_recv)
             if recv_size <= 0:
                 break
         except TypeError:
-            print('Type error!')
             return TypeError
-    return msg
+        except Exception as e:
+            print(str(e))
+    array = np.asarray(bytearray(msg), dtype=np.uint8)
+    img = cv2.imdecode(buf=array, flags=cv2.IMREAD_COLOR)
+
+    try:
+        conversion.conversion_add_image(img)
+    except Exception as e:
+        print(str(e))
+    return msg, img
+
+
+preview_num = int(1)
 
 
 # Listen function for process
 def proc_listen(proc_socket):
+    global preview_num
+
     conn, address = proc_socket.accept()
     print('Client connected!')
-
+    not_int_size = 0
     while True:
         try:
             recv_data = conn.recv(10)
@@ -89,22 +105,33 @@ def proc_listen(proc_socket):
             try:
                 recv_size = int(recv_data)
                 print(str('Size: ' + str(recv_size)))
-                msg = receive_data(conn, recv_size)
+                msg, img = receive_data(conn, recv_size)
+
+                cv2.imshow("Preview " + str(len(img) + preview_num), img)
+                cv2.waitKey(40)
+                preview_num += 1
+
                 if msg == TypeError:
                     continue
                 elif msg == 'disconnected':
                     print('Client disconnected!')
                     return
-                print('Received: ' + msg)
+                print('Received: ' + str(msg))
             except ValueError:
                 print("Not int!")
+                print("Received: " + str(recv_data))
+                not_int_size += len(recv_data)
+                print(str(not_int_size))
         except OSError:
             pass
+    cv2.destroyAllWindows()
     # return
 
 
 @app.route('/VAC/connect')
 def connect():
+    import conversion
+
     global port
     global global_lock
 
@@ -123,6 +150,7 @@ def connect():
         global_lock.release()
         # End critical section
 
+        conversion.start_conversion()
         print("Client connected: " + request.remote_addr)
         return str(port - 1), 200
     else:
@@ -178,13 +206,15 @@ def server_shutdown():
     return 'Server shutting down...', 200
 
 
+# Removes inactive processes and their sockets
+# Processes get inactive, when client disconnects
+# without http request
 def manage_processes():
     global processes
     global terminate_proc_manager
 
     while not terminate_proc_manager:
         if len(processes) > 0:
-            print('Checking inactive processes')
             while True:
                 changed = False
                 for key in processes.keys():
@@ -205,9 +235,7 @@ def manage_processes():
 if __name__ == '__main__':
     atexit.register(cleanup)
 
-    print('Before proc create')
     manager_thread = Thread(target=manage_processes)
-    print('Before proc start')
     manager_thread.start()
 
     app.run(
