@@ -10,13 +10,16 @@
         android:id="@+id/textureView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btnCapture" />
+        android:layout_above="@+id/btn_capture" />
 
-    <Button
-        android:id="@+id/btnCapture"
-        android:text="CAPTURE"
-        android:layout_alignParentBottom="true"
+    <ToggleButton
+        android:id="@+id/btn_capture"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:textOff="START"
+        android:textOn="STOP" />
+        android:text="ToggleButton" />
+
 
 </RelativeLayout>

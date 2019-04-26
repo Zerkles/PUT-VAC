@@ -2,6 +2,7 @@ package zerkles.apps.putvac.client;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -16,19 +17,23 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -36,9 +41,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.os.SystemClock.sleep;
+
 public class CameraActivity extends AppCompatActivity {
 
-    private Button btnCapture;
+    private ToggleButton btn_capture;
     private TextureView textureView;
 
     //Check state orientation of output image
@@ -94,11 +101,10 @@ public class CameraActivity extends AppCompatActivity {
         //From Java 1.4 , you can use keyword 'assert' to check expression true or false
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
-        btnCapture = (Button) findViewById(R.id.btnCapture);
-        btnCapture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                takePicture();
+        btn_capture = (ToggleButton) findViewById(R.id.btn_capture);
+        btn_capture.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                new ToggleTask().execute();
             }
         });
     }
@@ -134,7 +140,6 @@ public class CameraActivity extends AppCompatActivity {
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
 
-            //file = new File(Environment.getExternalStorageDirectory()+"/"+ UUID.randomUUID().toString()+".jpg");
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader imageReader) {
@@ -147,9 +152,6 @@ public class CameraActivity extends AppCompatActivity {
 
                         MainActivity.tcpClient.sendString(String.valueOf(bytes.length));
                         MainActivity.tcpClient.sendBytes(bytes);
-
-                        //save(bytes);
-
                     } finally {
                         {
                             if (image != null)
@@ -325,5 +327,16 @@ public class CameraActivity extends AppCompatActivity {
         mBackgroundThread = new HandlerThread("Camera Background");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+
+    public class ToggleTask extends AsyncTask<String, byte[], byte[]> {
+        @Override
+        protected byte[] doInBackground(String... strings) {
+            while (btn_capture.isChecked()) {
+                takePicture();
+                sleep(1000); /// 40-25 kl/s
+            }
+            return null;
+        }
     }
 }
