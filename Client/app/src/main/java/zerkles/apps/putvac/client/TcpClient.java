@@ -73,11 +73,11 @@ class TcpClient {
             //here you must put your computer's IP address.
             InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
 
-            Log.d("TCP Client", "C: Connecting...");
-
             //create a socket to make the connection with the server
             socket = new Socket(serverAddr, SERVER_PORT);
             socket.setSendBufferSize(10000000);
+
+            update_conn_status();
 
             outputStream = new DataOutputStream(socket.getOutputStream());
         } catch (Exception e) {
@@ -85,11 +85,19 @@ class TcpClient {
         }
     }
 
-    boolean is_connected() {
-        if (socket != null) {
-            return socket.isConnected();
+    void disconnect() {
+        HttpClient.sendRequest("GET", this.SERVER_IP, "/VAC/disconnect");
+        this.stopClient();
+        update_conn_status();
+    }
+
+    void update_conn_status() {
+        if (socket.isConnected()) {
+            Log.d("TCP Client", "Connected!");
+            MainActivity.tv_txt.setText("Connection: " + socket.getInetAddress().getHostAddress() + ':' + socket.getPort());
         } else {
-            return false;
+            Log.d("TCP Client", "NOT Connected!");
+            MainActivity.tv_txt.setText("Connected: NO");
         }
     }
 }

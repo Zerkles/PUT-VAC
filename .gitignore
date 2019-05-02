@@ -66,16 +66,15 @@ fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
 
-# Server
+#Server
+
 __pycache__/
 venv/
 server/.idea/
 
-
 #Client
 
-Client/.gradle/
-Client/.idea/
-Client/app/Debug/
-Client/gradle/
+Client/.gradle
+client/.idea
+Client/gradle
 Client/app/build

@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     static TcpClient tcpClient;
     Button btn_send, btn_connect, btn_disconnect, btn_camera;
     static EditText ed_txt, ed_txt2, ed_txt3;
-    TextView tv_txt, tv_txt2;
+    public static TextView tv_txt;
     AsyncTask actualConnection;
 
     @Override
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         //ed_txt2 = (EditText) findViewById(R.id.ed_txt2);
         ed_txt3 = findViewById(R.id.ed_txt3);
         tv_txt = findViewById(R.id.tv_txt);
-        tv_txt2 = findViewById(R.id.tv_txt2);
+        tv_txt.setText("Connected: NO");
 
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,30 +93,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        Log.d("STATE", "onRESUME");
-
-        if (actualConnection != null && tcpClient != null) {
-            if (tcpClient.socket.isConnected()) {
-                tv_txt.setText(" Connected: YES");
-            } else {
-                tv_txt.setText(" Connected: NO");
-            }
-
-            tv_txt2.setText(" Connection Addres: " + tcpClient.socket.getInetAddress());
+        if(tcpClient!=null){
+            tcpClient.update_conn_status();
         }
-    }
 
-
-    // -------- connection methods
-
-    public static void disconnect() {
-        if (tcpClient != null) {
-            HttpClient.sendRequest("GET", tcpClient.SERVER_IP, "/VAC/disconnect");
-            if (tcpClient != null) {
-                tcpClient.stopClient();
-                tcpClient = null;
-            }
-        }
     }
 
 
@@ -158,7 +139,10 @@ public class MainActivity extends AppCompatActivity {
     public static class DisconnectTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... message) {
-            disconnect();
+            if (tcpClient != null) {
+                tcpClient.disconnect();
+            }
+            tcpClient = null;
             return null;
         }
     }
@@ -168,7 +152,9 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... message) {
             if (tcpClient != null) {
                 if (!Objects.equals(getInputIP(), tcpClient.SERVER_IP)) {
-                    disconnect();
+                    if (tcpClient != null) {
+                        tcpClient.disconnect();
+                    }
 
                     new ConnectTask().execute("");
                 }
@@ -190,8 +176,12 @@ public class MainActivity extends AppCompatActivity {
     // -------- activity methods
 
     public void startCameraActivity() {
-        Intent intent = new Intent(this, CameraActivity.class);
-        startActivity(intent);
+        if (tcpClient == null || !tcpClient.socket.isConnected()) {
+            Toast.makeText(MainActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(this, CameraActivity.class);
+            startActivity(intent);
+        }
     }
 }
 
