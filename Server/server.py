@@ -130,7 +130,7 @@ def proc_listen(proc_socket):
     # return
 
 
-@app.route('/VAC/connect')
+@app.route('/VAC/TCP')
 def connect():
     global port
     global global_lock
@@ -155,8 +155,11 @@ def connect():
         return str(port - 1), 200
     else:
         client_port = client_sockets[str(request.remote_addr)].getsockname()[1]
-        return 'You are using port: ' + str(client_port), 200
+        return str(client_port), 200
 
+@app.route('/VAC/RTP')
+def RTP():
+    return "16384"
 
 @app.route('/VAC/disconnect')
 def disconnect():

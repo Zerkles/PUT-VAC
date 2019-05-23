@@ -1,18 +1,19 @@
 package zerkles.apps.putvac.client;
 
 import android.util.Log;
+import android.widget.TextView;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 
 class TcpClient {
-    private static final String TAG = TcpClient.class.getSimpleName();
-    String SERVER_IP = "0.0.0.0"; //server IP address
+    String SERVER_IP = "0.0.0.0";
     int SERVER_PORT = 0;
-    Socket socket = new Socket();
+    static Socket socket = new Socket();
 
     private DataOutputStream outputStream;
 
@@ -30,7 +31,7 @@ class TcpClient {
      */
     void sendBytes(final byte[] bytes) {
         if (outputStream != null) {
-            Log.d(TAG, "Sending: bytes");
+            Log.d("tcpClient_sendBytes", "Sending: bytes");
             try {
                 outputStream.write(bytes);
             } catch (IOException e) {
@@ -60,26 +61,17 @@ class TcpClient {
     /**
      * Close the connection and release the members
      */
-    void stopClient() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     void connect() {
         try {
             //here you must put your computer's IP address.
             InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-
             //create a socket to make the connection with the server
             socket = new Socket(serverAddr, SERVER_PORT);
             socket.setSendBufferSize(10000000);
 
-            update_conn_status();
-
             outputStream = new DataOutputStream(socket.getOutputStream());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,17 +79,43 @@ class TcpClient {
 
     void disconnect() {
         HttpClient.sendRequest("GET", this.SERVER_IP, "/VAC/disconnect");
-        this.stopClient();
-        update_conn_status();
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    void update_conn_status() {
-        if (socket.isConnected()) {
-            Log.d("TCP Client", "Connected!");
-            MainActivity.tv_txt.setText("Connection: " + socket.getInetAddress().getHostAddress() + ':' + socket.getPort());
+    public static void updateConnectionStatus(TextView tv) {
+        if (socket == null || !socket.isConnected()) {
+            Log.d("tcpClient_upConnStatus", "NOT Connected!");
+            tv.setText("Connection: NONE");
         } else {
-            Log.d("TCP Client", "NOT Connected!");
-            MainActivity.tv_txt.setText("Connected: NO");
+            Log.d("tcpClient_upConnStatus", "Connected!");
+            tv.setText("Connection: " + socket.getInetAddress().getHostAddress() + ':' + socket.getPort());
+        }
+    }
+
+    void checkConnStatus(InetSocketAddress addr) {
+        if (addr != null && socket.isConnected()) {
+            boolean reachable = false;
+            try {
+                // Dla większego TTL trzebaby zwiększyć
+                reachable = socket.getInetAddress().isReachable(10);
+                Log.d("tcpClient_checkConn", "Connected");
+            } catch (IOException ignored) {
+                Log.d("tcpClient_checkConn", "Disconnected");
+                ignored.printStackTrace();
+            } finally {
+                if (!reachable) {
+                    try {
+                        socket.close();
+                    } catch (IOException ignored) {
+                        ignored.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }

@@ -28,8 +28,11 @@ class HttpClient {
                 result = in.readLine();
             }
         } catch (Exception e) {
-            Log.d("HTTP_CONNECTION", e.toString() + "ERR");
+            Log.d("httpClient_sendRequest", e.toString() + "ERR");
+            e.printStackTrace();
         }
         return result;
     }
+
+
 }
