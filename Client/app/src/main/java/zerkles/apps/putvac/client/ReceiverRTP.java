@@ -11,7 +11,6 @@ import java.net.DatagramSocket;
 
 public class ReceiverRTP implements RTPAppIntf {
     private RTPSession rtpSession;
-
     private int rtpPort;
     private int rtcpPort;
     private AudioTrack at;
@@ -19,7 +18,7 @@ public class ReceiverRTP implements RTPAppIntf {
     public synchronized void receiveData(DataFrame frame, Participant p) {
         if (at != null) {
             byte[] data = frame.getConcatenatedData();
-            Log.d("ReceiverRTP_receiveData",String.valueOf(data.length));
+            Log.d("ReceiverRTP_receiveData", String.valueOf(data.length));
             at.write(data, 0, data.length);
         }
     }
@@ -43,7 +42,7 @@ public class ReceiverRTP implements RTPAppIntf {
             rtpSocket = new DatagramSocket(rtpPort);
             rtcpSocket = new DatagramSocket(rtcpPort);
         } catch (Exception e) {
-            Log.d("ReceiverRTP_CONSTRUCTOR","RTPSession failed to obtain port");
+            Log.d("ReceiverRTP_CONSTRUCTOR", "RTPSession failed to obtain port");
             e.printStackTrace();
         }
 
@@ -64,16 +63,16 @@ public class ReceiverRTP implements RTPAppIntf {
 
 
     public void start() {
-        Log.d("ReceiverRTP_START","Setup");
+        Log.d("ReceiverRTP_START", "Setup");
 
         ReceiverRTP object = new ReceiverRTP(rtpPort, rtcpPort);
 
         object.doStuff();
-        Log.d("ReceiverRTP_START","Done");
+        Log.d("ReceiverRTP_START", "Done");
     }
 
     private void doStuff() {
-        Log.d("ReceiverRTP_doStuff","-> ReceiverDemo.doStuff()");
+        Log.d("ReceiverRTP_doStuff", "-> ReceiverDemo.doStuff()");
 
         try {
             int nBytesRead = 0;
@@ -89,5 +88,17 @@ public class ReceiverRTP implements RTPAppIntf {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void disconnect() {
+        rtpSession.endSession();
+    }
+
+    public int getPort() {
+        return rtpPort;
+    }
+
+    public RTPSession getSession() {
+        return rtpSession;
     }
 }

@@ -13,7 +13,7 @@ import java.net.Socket;
 class TcpClient {
     String SERVER_IP = "0.0.0.0";
     int SERVER_PORT = 0;
-    static Socket socket = new Socket();
+    private Socket socket = new Socket();
 
     private DataOutputStream outputStream;
 
@@ -87,14 +87,8 @@ class TcpClient {
         }
     }
 
-    public static void updateConnectionStatus(TextView tv) {
-        if (socket == null || !socket.isConnected()) {
-            Log.d("tcpClient_upConnStatus", "NOT Connected!");
-            tv.setText("Connection: NONE");
-        } else {
-            Log.d("tcpClient_upConnStatus", "Connected!");
-            tv.setText("Connection: " + socket.getInetAddress().getHostAddress() + ':' + socket.getPort());
-        }
+    Socket getSocket() {
+        return socket;
     }
 
     void checkConnStatus(InetSocketAddress addr) {

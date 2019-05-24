@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
         android:orientation="vertical">
 
         <LinearLayout
@@ -16,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <EditText
                 android:id="@+id/ed_txt"
@@ -27,20 +28,20 @@
                 android:hint="IP"
                 android:inputType="textPersonName"
                 android:textAlignment="center" />
+
+            <EditText
+                android:id="@+id/ed_txt2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
+                android:ems="10"
+                android:hint="Text"
+                android:inputType="textPersonName"
+                android:textAlignment="center" />
         </LinearLayout>
 
-
-        <EditText
-            android:id="@+id/ed_txt2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:ems="10"
-            android:hint="Text"
-            android:inputType="textPersonName"
-            android:textAlignment="center" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -89,12 +90,18 @@
                 android:text="CAMERA" />
 
             <TextView
-                android:id="@+id/tv_txt"
+                android:id="@+id/tv_rtp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="RTP Port:" />
+
+            <TextView
+                android:id="@+id/tv_tcp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
                 android:layout_marginEnd="0dp"
-                android:text="Connection:" />
+                android:text="TCP Connection:" />
 
         </LinearLayout>
     </LinearLayout>

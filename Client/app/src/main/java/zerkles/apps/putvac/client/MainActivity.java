@@ -15,9 +15,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Objects;
-
-import static zerkles.apps.putvac.client.TcpClient.updateConnectionStatus;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     static ReceiverRTP rtpClient;
     Button btn_send, btn_connect, btn_disconnect, btn_camera;
     static EditText ed_txt, ed_txt2;
-    static TextView tv_txt;
+    static TextView tv_tcp, tv_rtp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +35,15 @@ public class MainActivity extends AppCompatActivity {
         btn_camera = findViewById(R.id.btn_camera);
         ed_txt = findViewById(R.id.ed_txt);
         ed_txt2 = findViewById(R.id.ed_txt2);
-        tv_txt = findViewById(R.id.tv_txt);
+        tv_tcp = findViewById(R.id.tv_tcp);
+        tv_rtp = findViewById(R.id.tv_rtp);
 
-        updateConnectionStatus(tv_txt);
         checkPermissions();
 
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //sends the message to the server
+                //sends the message through TCP to the server
                 if (tcpClient != null && ed_txt2.getText() != null) {
                     String text = ed_txt2.getText().toString();
                     if (!text.isEmpty()) {
@@ -59,11 +56,8 @@ public class MainActivity extends AppCompatActivity {
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (tcpClient != null) {
-                    new ConnectionTasks().execute("RECONNECT");
-                } else {
-                    new ConnectionTasks().execute("CONNECT");
-                }
+                new ConnectionTasks().execute("CONNECT");
+                new ConnectionTasks().execute("RTP");
             }
         });
 
@@ -86,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateConnectionStatus(tv_txt);
+        updateConnectionStatus(tcpClient, rtpClient, tv_rtp, tv_tcp);
     }
 
 
@@ -117,13 +111,18 @@ public class MainActivity extends AppCompatActivity {
 
             switch (strings[0]) {
                 case "CONNECT": {
+                    if (tcpClient != null) {
+                        tcpClient.disconnect();
+                        tcpClient = null;
+                    }
+
                     tcpClient = new TcpClient();
 
-                    if (getIP() != null && getPort("TCP") != null) {
+                    String PortTCP_S = getPort("TCP");
+                    if (getIP() != null && PortTCP_S != null) {
                         tcpClient.SERVER_IP = getIP();
-                        tcpClient.SERVER_PORT = Integer.parseInt(getPort("TCP"));
+                        tcpClient.SERVER_PORT = Integer.parseInt(PortTCP_S);
                         tcpClient.connect();
-                        new ConnectionTasks().execute("RTP");
                     }
 
                 }
@@ -133,20 +132,22 @@ public class MainActivity extends AppCompatActivity {
                         tcpClient.disconnect();
                         tcpClient = null;
                     }
-
-                }
-                break;
-                case "RECONNECT": {
-                    if (tcpClient != null && !Objects.equals(getIP(), tcpClient.SERVER_IP)) {
-                        tcpClient.disconnect();
-                        new ConnectionTasks().execute("CONNECT");
+                    if (rtpClient != null) {
+                        rtpClient.disconnect();
+                        rtpClient = null;
                     }
 
                 }
                 break;
                 case "RTP": {
-                    if (tcpClient != null && tcpClient.socket.isConnected() && getPort("RTP") != null) {
-                        int port = Integer.parseInt(getPort("RTP"));
+                    if (rtpClient != null) {
+                        rtpClient.disconnect();
+                        rtpClient = null;
+                    }
+
+                    String PortRTP_S = getPort("RTP");
+                    if (PortRTP_S != null) {
+                        int port = Integer.parseInt(PortRTP_S);
                         rtpClient = new ReceiverRTP(port, port + 1);
                     }
 
@@ -157,7 +158,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            TcpClient.updateConnectionStatus(tv_txt);
+            updateConnectionStatus(tcpClient, rtpClient, tv_rtp, tv_tcp);
+
             return null;
         }
     }
@@ -174,24 +176,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 4);
-        }
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 4);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
         }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 4);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 3);
+        }
+    }
+
+    static void updateConnectionStatus(TcpClient tcpClient, ReceiverRTP rtpClient, TextView tv_rtp, TextView tv_tcp) {
+        if (tcpClient == null || tcpClient.getSocket() == null || !tcpClient.getSocket().isConnected()) {
+            Log.d("tcpClient_upConnStatus", "NOT Connected!");
+            tv_tcp.setText("TCP Connection: NONE");
+        } else {
+            Log.d("tcpClient_upConnStatus", "Connected!");
+            tv_tcp.setText("TCP Connection: " + tcpClient.getSocket().getInetAddress().getHostAddress() + ':' + tcpClient.getSocket().getPort());
+        }
+
+        if (rtpClient == null || rtpClient.getSession() == null) {
+            Log.d("rtpClient_upConnStatus", "NOT Connected!");
+            tv_rtp.setText("RTP Port: NONE");
+        } else {
+            Log.d("rtpClient_upConnStatus", "Connected!");
+            tv_rtp.setText("RTP Port: " + rtpClient.getPort());
         }
     }
 
     // -------- activity methods
 
     public void startCameraActivity() {
-        if (tcpClient == null || !tcpClient.socket.isConnected() || rtpClient == null) {
+        if (tcpClient == null || !tcpClient.getSocket().isConnected() || rtpClient == null) {
             Toast.makeText(MainActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
         } else {
             Intent intent = new Intent(this, CameraActivity.class);
