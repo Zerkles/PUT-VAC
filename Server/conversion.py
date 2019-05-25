@@ -2,7 +2,6 @@ import math  # To calculate the WAV file content
 import numpy as np  # To handle matrices
 import cv2
 from socket import socket
-from multiprocessing import Pool
 
 '''
 source: https://www.hackster.io/sam1902/encode-image-in-sound-with-python-f46a3f
@@ -97,45 +96,3 @@ def send_chunk(rtp_socket: socket, buf: []):
     # print("+------------------------+")
     # print("| Sent sound with length : " + str(len(data)))
     # print("+------------------------+")
-
-
-class Vac:
-    ready = False
-    sample_rate: int = 44100
-    sample = np.array([])
-    stream = None
-    proc_pool: Pool = None
-    rtp_socket: socket = None
-
-    def __init__(self, rtp_socket: socket):
-        self.rtp_socket = rtp_socket
-        self.proc_pool = Pool(20)
-        return
-
-    def feed_image(self, img):
-        duration = 0.25
-        min_freq = 0
-        max_freq = int(self.sample_rate / 2)
-        intensity_factor = 1
-
-        args = (
-            img,
-            duration,
-            self.sample_rate,
-            intensity_factor,
-            min_freq,
-            max_freq,
-            self.rtp_socket,
-        )
-        self.proc_pool.apply_async(func=gen_sound_from_image, args=args)
-        return
-
-    def start(self):
-        self.stream.start_stream()
-        return
-
-    def shutdown(self):
-        # stop stream
-        self.stream.stop_stream()
-        self.stream.close()
-        return
