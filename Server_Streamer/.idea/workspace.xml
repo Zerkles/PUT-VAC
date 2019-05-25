@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4423b585-354d-472e-86b1-16556bcdbedc" name="Default Changelist" comment="" />
+    <ignored path="$PROJECT_DIR$/out/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DefaultGradleProjectSettings">
+    <option name="isMigrated" value="true" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/company/Main.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="497">
+              <caret line="34" column="49" selection-start-line="34" selection-start-column="49" selection-end-line="34" selection-end-column="49" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/company/TcpServer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="13" column="32" selection-start-line="13" selection-start-column="32" selection-end-line="13" selection-end-column="32" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/company/TcpClient.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1071">
+              <caret line="90" column="7" selection-start-line="90" selection-start-column="7" selection-end-line="90" selection-end-column="7" />
+              <folding>
+                <element signature="docComment;method#TcpClient#0;class#TcpClient#0" />
+                <element signature="e#398#399#0" expanded="true" />
+                <element signature="e#435#436#0" expanded="true" />
+                <element signature="docComment;method#TcpClient#1;class#TcpClient#0" />
+                <element signature="docComment;method#sendBytes#0;class#TcpClient#0" />
+                <element signature="method#sendBytes#0;class#TcpClient#0" />
+                <element signature="docComment;method#sendString#0;class#TcpClient#0" />
+                <element signature="docComment;method#connect#0;class#TcpClient#0" />
+                <element signature="docComment;method#disconnect#0;class#TcpClient#0" />
+                <element signature="method#disconnect#0;class#TcpClient#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/company/RtpServer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="46" selection-start-line="46" selection-end-line="46" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#RtpServer#0;class#RtpServer#0" />
+                <element signature="method#addParticipant#0;class#RtpServer#0" />
+                <element signature="method#receiveData#0;class#RtpServer#0" />
+                <element signature="method#userEvent#0;class#RtpServer#0" />
+                <element signature="method#feed#0;class#RtpServer#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/company/VacStreamer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>DataOutput</find>
+      <find>port</find>
+      <find>16384</find>
+      <find>Got</find>
+      <find>sendData</find>
+      <find>socke</find>
+      <find>wave</find>
+      <find>8</find>
+      <find>true</find>
+      <find>printl</find>
+      <find>args[1</find>
+      <find>syst</find>
+      <find>System.out.println</find>
+      <find>log</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>Utils.log</replace>
+    </replaceStrings>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/com/company/VacStreamer.java" />
+        <option value="$PROJECT_DIR$/src/jlibrtp/RTPSession.java" />
+        <option value="$PROJECT_DIR$/src/jlibrtpDemos/SoundReceiverDemo.java" />
+        <option value="$PROJECT_DIR$/src/com/company/TcpServer.java" />
+        <option value="$PROJECT_DIR$/src/jlibrtpDemos/SoundSenderDemo.java" />
+        <option value="$PROJECT_DIR$/src/ConsoleColors.java" />
+        <option value="$PROJECT_DIR$/src/Utils.java" />
+        <option value="$PROJECT_DIR$/src/com/company/RtpStreamer.java" />
+        <option value="$PROJECT_DIR$/src/com/company/Utils.java" />
+        <option value="$PROJECT_DIR$/src/com/company/TcpClient.java" />
+        <option value="$PROJECT_DIR$/src/com/company/Main.java" />
+        <option value="$PROJECT_DIR$/src/com/company/RtpServer.java" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-7" />
+    <option name="width" value="974" />
+    <option name="height" value="1047" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="PackagesPane" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="VAC_Server_Streamer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="VAC_Server_Streamer" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="VAC_Server_Streamer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="VAC_Server_Streamer" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="VAC_Server_Streamer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="VAC_Server_Streamer" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="company" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="VAC_Server_Streamer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="VAC_Server_Streamer" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="jlibrtpDemos" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="Downloaded.Files.Path.Enabled" value="false" />
+    <property name="Repository.Attach.Annotations" value="false" />
+    <property name="Repository.Attach.JavaDocs" value="false" />
+    <property name="Repository.Attach.Sources" value="false" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="com.company.Main" />
+      <module name="VAC_Server_Streamer" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SoundReceiverDemo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="jlibrtpDemos.SoundReceiverDemo" />
+      <module name="VAC_Server_Streamer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="jlibrtpDemos.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SoundSenderDemo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="jlibrtpDemos.SoundSenderDemo" />
+      <module name="VAC_Server_Streamer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="jlibrtpDemos.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.SoundSenderDemo" />
+        <item itemvalue="Application.SoundReceiverDemo" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4423b585-354d-472e-86b1-16556bcdbedc" name="Default Changelist" comment="" />
+      <created>1558292131988</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1558292131988</updated>
+      <workItem from="1558292135380" duration="5554000" />
+      <workItem from="1558335885677" duration="4855000" />
+      <workItem from="1558358217243" duration="3738000" />
+      <workItem from="1558377336739" duration="6492000" />
+      <workItem from="1558440233456" duration="626000" />
+      <workItem from="1558705039373" duration="4372000" />
+      <workItem from="1558728028836" duration="4201000" />
+      <workItem from="1558733682527" duration="5889000" />
+      <workItem from="1558773675508" duration="6371000" />
+      <workItem from="1558783722809" duration="1163000" />
+      <workItem from="1558784986917" duration="88000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="43349000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.09968017" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Image Layers" order="2" />
+      <window_info id="Designer" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Capture Tool" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32502708" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39934355" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="Terminal" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" order="12" weight="0.32827735" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Database" order="4" />
+      <window_info anchor="right" id="Theme Preview" order="5" />
+      <window_info anchor="right" id="Maven" order="6" />
+      <window_info anchor="right" id="Capture Analysis" order="7" />
+      <window_info anchor="right" id="Palette&#9;" order="8" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/jlibrtp/RTPSession.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2006">
+          <caret line="241" column="27" selection-start-line="241" selection-start-column="19" selection-end-line="241" selection-end-column="27" />
+          <folding>
+            <element signature="docComment;class#RTPSession#0" />
+            <element signature="e#1663#1906#0" />
+            <element signature="e#1954#2198#0" />
+            <element signature="e#2250#2275#0" />
+            <element signature="e#2321#2348#0" />
+            <element signature="e#2397#2423#0" />
+            <element signature="e#2489#2546#0" />
+            <element signature="e#2588#2646#0" />
+            <element signature="e#2682#2709#0" />
+            <element signature="e#2735#2783#0" />
+            <element signature="e#2822#2852#0" />
+            <element signature="e#2883#2928#0" />
+            <element signature="e#2965#3009#0" />
+            <element signature="e#3051#3073#0" />
+            <element signature="e#3113#3157#0" />
+            <element signature="e#3197#3270#0" />
+            <element signature="e#3320#3375#0" />
+            <element signature="e#3429#3481#0" />
+            <element signature="e#3523#3550#0" />
+            <element signature="e#3626#3672#0" />
+            <element signature="e#3714#3772#0" />
+            <element signature="e#3819#3887#0" />
+            <element signature="e#3936#3988#0" />
+            <element signature="e#4040#4096#0" />
+            <element signature="e#4143#4186#0" />
+            <element signature="e#4236#4292#0" />
+            <element signature="e#4348#4389#0" />
+            <element signature="e#4449#4488#0" />
+            <element signature="e#4567#4626#0" />
+            <element signature="e#4669#4715#0" />
+            <element signature="e#4758#4825#0" />
+            <element signature="e#4866#4943#0" />
+            <element signature="e#4984#5001#0" />
+            <element signature="e#5037#5076#0" />
+            <element signature="e#5108#5143#0" />
+            <element signature="e#5176#5218#0" />
+            <element signature="e#5251#5288#0" />
+            <element signature="e#5319#5365#0" />
+            <element signature="e#5397#5415#0" />
+            <element signature="e#5447#5489#0" />
+            <element signature="e#5524#5600#0" />
+            <element signature="e#6140#6570#0" />
+            <element signature="e#6140#6969#0" />
+            <element signature="e#6975#7455#0" />
+            <element signature="e#6975#7995#0" />
+            <element signature="e#8001#8511#0" />
+            <element signature="e#8001#9159#0" />
+            <element signature="e#8626#8730#1" />
+            <element signature="e#8736#9156#1" />
+            <element signature="e#8817#8872#1" />
+            <element signature="e#9164#9494#0" />
+            <element signature="e#9164#9685#0" />
+            <element signature="e#9691#10147#0" />
+            <element signature="e#9691#10369#0" />
+            <element signature="e#10375#11105#0" />
+            <element signature="e#10375#14850#0" />
+            <element signature="e#11264#11328#1" />
+            <element signature="e#11545#14830#1" />
+            <element signature="e#11691#11805#1" />
+            <element signature="e#11893#11934#1" />
+            <element signature="e#11940#11979#1" />
+            <element signature="e#12260#12340#0" />
+            <element signature="e#12421#12537#1" />
+            <element signature="e#12563#13427#1" />
+            <element signature="e#12611#12718#0" />
+            <element signature="e#12739#12868#0" />
+            <element signature="e#12879#13274#0" />
+            <element signature="e#12961#13267#1" />
+            <element signature="e#13295#13418#0" />
+            <element signature="e#13433#14620#1" />
+            <element signature="e#13555#14614#1" />
+            <element signature="e#13696#13772#1" />
+            <element signature="e#13784#13864#0" />
+            <element signature="e#13885#14018#0" />
+            <element signature="e#14063#14461#0" />
+            <element signature="e#14146#14453#1" />
+            <element signature="e#14482#14607#0" />
+            <element signature="e#14735#14823#1" />
+            <element signature="e#14856#15593#0" />
+            <element signature="e#14856#15987#0" />
+            <element signature="e#15990#16254#0" />
+            <element signature="e#15990#16431#0" />
+            <element signature="e#16436#16564#0" />
+            <element signature="e#16853#17046#0" />
+            <element signature="e#16853#17901#0" />
+            <element signature="e#17158#17190#1" />
+            <element signature="e#17196#17226#1" />
+            <element signature="e#17363#17397#0" />
+            <element signature="e#17736#17898#1" />
+            <element signature="e#17796#17843#1" />
+            <element signature="e#17849#17894#1" />
+            <element signature="e#17907#18034#0" />
+            <element signature="e#18088#18233#0" />
+            <element signature="e#18297#18363#0" />
+            <element signature="e#18466#18760#0" />
+            <element signature="e#18540#18616#1" />
+            <element signature="e#18622#18696#1" />
+            <element signature="e#18764#19020#0" />
+            <element signature="e#18764#19226#0" />
+            <element signature="e#19090#19132#1" />
+            <element signature="e#19138#19223#1" />
+            <element signature="e#19230#19480#0" />
+            <element signature="e#19230#19703#0" />
+            <element signature="e#19551#19609#1" />
+            <element signature="e#19615#19700#1" />
+            <element signature="e#19707#19970#0" />
+            <element signature="e#19707#20183#0" />
+            <element signature="e#20040#20089#1" />
+            <element signature="e#20095#20180#1" />
+            <element signature="e#20187#20452#0" />
+            <element signature="e#20187#20677#0" />
+            <element signature="e#20523#20583#1" />
+            <element signature="e#20589#20674#1" />
+            <element signature="e#20681#21057#0" />
+            <element signature="e#20681#21228#0" />
+            <element signature="e#21135#21154#1" />
+            <element signature="e#21160#21225#1" />
+            <element signature="e#21232#21355#0" />
+            <element signature="e#21417#21606#0" />
+            <element signature="e#21693#21863#0" />
+            <element signature="e#21933#22801#0" />
+            <element signature="e#21933#23161#0" />
+            <element signature="e#22871#23116#1" />
+            <element signature="e#23045#23081#0" />
+            <element signature="e#23122#23158#1" />
+            <element signature="e#23165#23615#0" />
+            <element signature="e#23689#23954#0" />
+            <element signature="e#23689#24346#0" />
+            <element signature="e#24101#24318#1" />
+            <element signature="e#24324#24343#1" />
+            <element signature="e#24350#24540#0" />
+            <element signature="e#24350#24670#0" />
+            <element signature="e#24674#24831#0" />
+            <element signature="e#24926#25048#0" />
+            <element signature="e#25130#25614#0" />
+            <element signature="e#25679#25880#0" />
+            <element signature="e#25679#26048#0" />
+            <element signature="e#25947#25978#1" />
+            <element signature="e#25984#26020#1" />
+            <element signature="e#26054#26446#0" />
+            <element signature="e#26512#26739#0" />
+            <element signature="e#26512#26915#0" />
+            <element signature="e#26804#26837#1" />
+            <element signature="e#26843#26883#1" />
+            <element signature="e#26919#27029#0" />
+            <element signature="e#27033#27208#0" />
+            <element signature="e#27033#27584#0" />
+            <element signature="e#27588#27963#0" />
+            <element signature="e#27588#28420#0" />
+            <element signature="e#28424#28805#0" />
+            <element signature="e#28424#29260#0" />
+            <element signature="e#29264#29493#0" />
+            <element signature="e#29264#29886#0" />
+            <element signature="e#29892#30275#0" />
+            <element signature="e#29892#30664#0" />
+            <element signature="e#30669#30769#0" />
+            <element signature="e#30669#30894#0" />
+            <element signature="e#30853#30874#1" />
+            <element signature="e#30898#30945#0" />
+            <element signature="e#30898#31133#0" />
+            <element signature="e#31139#31187#0" />
+            <element signature="e#31139#31398#0" />
+            <element signature="e#31365#31395#1" />
+            <element signature="e#31402#31438#0" />
+            <element signature="e#31402#31632#0" />
+            <element signature="e#31592#31628#1" />
+            <element signature="e#31636#31829#0" />
+            <element signature="e#31636#32572#0" />
+            <element signature="e#32004#32449#1" />
+            <element signature="e#32455#32569#1" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jlibrtpDemos/SoundReceiverDemo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1036">
+          <caret line="74" column="27" selection-start-line="74" selection-start-column="27" selection-end-line="74" selection-end-column="27" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk-12.0.1/lib/src.zip!/java.base/java/io/DataInputStream.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="401">
+          <caret line="390" column="21" selection-start-line="390" selection-start-column="21" selection-end-line="390" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jlibrtpDemos/SoundSenderDemo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="64" column="41" selection-start-line="64" selection-start-column="41" selection-end-line="64" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jlibrtp/RTCPSenderThread.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="421" column="36" selection-start-line="421" selection-start-column="36" selection-end-line="421" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/company/Utils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/company/ConsoleColors.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/company/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="497">
+          <caret line="34" column="49" selection-start-line="34" selection-start-column="49" selection-end-line="34" selection-end-column="49" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/company/TcpServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="13" column="32" selection-start-line="13" selection-start-column="32" selection-end-line="13" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/company/TcpClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1071">
+          <caret line="90" column="7" selection-start-line="90" selection-start-column="7" selection-end-line="90" selection-end-column="7" />
+          <folding>
+            <element signature="docComment;method#TcpClient#0;class#TcpClient#0" />
+            <element signature="e#398#399#0" expanded="true" />
+            <element signature="e#435#436#0" expanded="true" />
+            <element signature="docComment;method#TcpClient#1;class#TcpClient#0" />
+            <element signature="docComment;method#sendBytes#0;class#TcpClient#0" />
+            <element signature="method#sendBytes#0;class#TcpClient#0" />
+            <element signature="docComment;method#sendString#0;class#TcpClient#0" />
+            <element signature="docComment;method#connect#0;class#TcpClient#0" />
+            <element signature="docComment;method#disconnect#0;class#TcpClient#0" />
+            <element signature="method#disconnect#0;class#TcpClient#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/company/VacStreamer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/company/RtpServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="46" selection-start-line="46" selection-end-line="46" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#RtpServer#0;class#RtpServer#0" />
+            <element signature="method#addParticipant#0;class#RtpServer#0" />
+            <element signature="method#receiveData#0;class#RtpServer#0" />
+            <element signature="method#userEvent#0;class#RtpServer#0" />
+            <element signature="method#feed#0;class#RtpServer#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>VAC_Server_Streamer</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>org.json:json:20180813</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

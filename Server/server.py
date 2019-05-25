@@ -12,23 +12,32 @@ import time
 import cv2
 import numpy as np
 import conversion
+import datetime
 
 # app init
 app = Flask(__name__, template_folder='templates')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-# port assigned to client
-# increases with every connect request
-port: int = 55000
+# TCP port assigned to client
+# increases with every successful connect request
+tcp_port: int = 55000
 
-manager_thread = None
-terminate_proc_manager = False
+# RTP port assigned to client
+# increases by 2 with every successful connect request
+# NOTE: 2 first ports are taken by RTP streamer
+rtp_port: int = 49154
+
+manager_thread: Thread = Thread()
+terminate_proc_manager: bool = False
 global_lock = Lock()
 
 # Dictionaries
 processes: Dict[str, Process] = dict()
 client_sockets: Dict[str, socket.socket] = dict()
+
+# RTP service socket
+rtp_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 # Terminates processes on exit
@@ -82,6 +91,7 @@ def receive_data(conn, recv_size: int, converter: conversion.Vac):
     try:
         converter.feed_image(img)
     except Exception as e:
+        print('Receive exception 2')
         print(str(e))
     return msg, img
 
@@ -90,23 +100,23 @@ preview_num = int(1)
 
 
 # Listen function for process
-def proc_listen(proc_socket):
+def proc_listen(proc_socket, rtp_socket):
     global preview_num
 
-    converter = conversion.Vac()
+    converter = conversion.Vac(rtp_socket)
 
     conn, address = proc_socket.accept()
     print('Client connected!')
     not_int_size = 0
     while True:
         try:
-            recv_data = conn.recv(10)
+            recv_data = conn.recv(4)
             if len(recv_data) == 0:
                 print('Client disconnected!')
                 break
             try:
-                recv_size = int(recv_data)
-                print(str('Size: ' + str(recv_size)))
+                recv_size = int.from_bytes(recv_data, "big")
+                # print(str('Size: ' + str(recv_size)))
                 msg, img = receive_data(conn, recv_size, converter)
 
                 # cv2.imshow("Preview " + str(len(img) + preview_num), img)
@@ -118,52 +128,63 @@ def proc_listen(proc_socket):
                 elif msg == 'disconnected':
                     print('Client disconnected!')
                     return
-                print('Received: ' + str(msg))
+                # print(str(datetime.datetime.now()))
             except ValueError:
+                print("------------------------")
                 print("Not int!")
                 print("Received: " + str(recv_data))
                 not_int_size += len(recv_data)
-                print(str(not_int_size))
+                print("Size: " + str(not_int_size))
+                print("------------------------")
         except OSError:
             pass
     cv2.destroyAllWindows()
     # return
 
 
-@app.route('/VAC/TCP')
+# ---------------- routes
+
+@app.route('/VAC/connect')
 def connect():
-    global port
+    global tcp_port
+    global rtp_port
     global global_lock
 
     if not str(request.remote_addr) in client_sockets.keys():
-        print('Port: ' + str(port))
+        print('Port: ' + str(tcp_port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_sockets[str(request.remote_addr)] = sock
-        client_sockets[str(request.remote_addr)].bind(('', port))
+        client_sockets[str(request.remote_addr)].bind(('', tcp_port))
         client_sockets[str(request.remote_addr)].listen(1)
-        port += 1
+        client_tcp_port = tcp_port
+        client_rtp_port = rtp_port
+        tcp_port += 1
+        rtp_port += 2
 
         # Critical section
         global_lock.acquire()
-        proc = Process(target=proc_listen, args=(sock,))
+        proc = Process(target=proc_listen, args=(sock, rtp_server_socket,))
         processes[str(request.remote_addr)] = proc
         proc.start()
         global_lock.release()
         # End critical section
 
-        print("Client connected: " + request.remote_addr)
-        return str(port - 1), 200
-    else:
-        client_port = client_sockets[str(request.remote_addr)].getsockname()[1]
-        return str(client_port), 200
+        client_addr: str = request.remote_addr
+        print("Client request: " + client_addr)
+        client_json: str = "{'address':" + client_addr + ",'rtp_port':" + str(client_rtp_port) + "}"
+        rtp_server_socket.send(len(client_json).to_bytes(4, byteorder='big'))
+        rtp_server_socket.send(client_json.encode())
 
-@app.route('/VAC/RTP')
-def RTP():
-    return "16384"
+        response_json = "{'tcp_port':" + str(client_tcp_port) + ",'rtp_port':" + str(client_rtp_port) + '}'
+        print(response_json)
+        return response_json, 200
+    else:
+        return 'connected', 200
+
 
 @app.route('/VAC/disconnect')
 def disconnect():
-    global port
+    global tcp_port
     global global_lock
 
     if str(request.remote_addr) in client_sockets.keys():
@@ -172,7 +193,8 @@ def disconnect():
 
         # Critical section
         global_lock.acquire()
-        processes[str(request.remote_addr)].terminate()
+        processes[str(request.remote_addr)].kill()
+        processes[str(request.remote_addr)].join()
         del processes[str(request.remote_addr)]
         del client_sockets[str(request.remote_addr)]
         global_lock.release()
@@ -187,8 +209,7 @@ def disconnect():
 @app.route('/')
 @app.route('/VAC/')
 def test():
-    print("It's working!")
-    return "I'm am working!", 200
+    return "VAC is working!", 200
 
 
 @app.route('/VAC/manager')
@@ -211,7 +232,7 @@ def server_shutdown():
 
 
 # Removes inactive processes and their sockets
-# Processes get inactive, when client disconnects
+# Processes get inactive when client disconnects
 # without http request
 def manage_processes():
     global processes
@@ -238,6 +259,13 @@ def manage_processes():
 
 if __name__ == '__main__':
     atexit.register(cleanup)
+
+    while True:
+        try:
+            rtp_server_socket.connect(("127.0.0.1", 49152))
+        except Exception:
+            continue
+        break
 
     manager_thread = Thread(target=manage_processes)
     manager_thread.start()
