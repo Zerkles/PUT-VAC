@@ -6,10 +6,10 @@ import time
 from Vac import Vac
 import cv2
 import numpy as np
+import json
 
 # TCP port assigned to client
 # increases with every successful connect request
-
 tcp_port: int = 55000
 
 # RTP port assigned to client
@@ -139,15 +139,15 @@ def add_client(request):
     global global_lock
 
     if not str(request.remote_addr) in client_sockets.keys():
-        print('Port: ' + str(tcp_port))
-        sock = socket(AF_INET, SOCK_STREAM)
-        client_sockets[str(request.remote_addr)] = sock
-        client_sockets[str(request.remote_addr)].bind(('', tcp_port))
-        client_sockets[str(request.remote_addr)].listen(1)
         client_tcp_port = tcp_port
         client_rtp_port = rtp_port
         tcp_port += 1
         rtp_port += 2
+
+        sock = socket(AF_INET, SOCK_STREAM)
+        client_sockets[str(request.remote_addr)] = sock
+        client_sockets[str(request.remote_addr)].bind(('', client_tcp_port))
+        client_sockets[str(request.remote_addr)].listen(1)
 
         # Critical section
         global_lock.acquire()
@@ -157,15 +157,18 @@ def add_client(request):
         global_lock.release()
         # End critical section
 
+        # Sending client information to RTP streamer
         client_addr: str = request.remote_addr
-        print("Client request: " + client_addr)
-        client_json: str = "{'address':" + client_addr + ",'rtp_port':" + str(client_rtp_port) + "}"
-        rtp_server_socket.send(len(client_json).to_bytes(4, byteorder='big'))
-        rtp_server_socket.send(client_json.encode())
+        client_json = {'address': client_addr, 'rtp_port': client_rtp_port}
+        client_json_str: str = json.dumps(client_json)
+        rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
+        rtp_server_socket.send(client_json_str.encode())
 
-        response_json = "{'tcp_port':" + str(client_tcp_port) + ",'rtp_port':" + str(client_rtp_port) + '}'
-        print(response_json)
-        return response_json
+        # Building response
+        response_json = {'tcp_port': client_tcp_port, 'rtp_port': client_rtp_port}
+        response_json_str = json.dumps(response_json)
+        print(response_json_str)
+        return response_json_str
     else:
         return 'connected'
 

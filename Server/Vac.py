@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 from socket import socket
-import conversion
+import converting
 import numpy as np
 
 
@@ -32,7 +32,7 @@ class Vac:
             max_freq,
             self.rtp_socket,
         )
-        self.proc_pool.apply_async(func=conversion.gen_sound_from_image, args=args)
+        self.proc_pool.apply_async(func=converting.gen_sound_from_image, args=args)
         return
 
     def start(self):

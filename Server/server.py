@@ -54,6 +54,7 @@ def server_shutdown():
 if __name__ == '__main__':
     atexit.register(managing.cleanup)
 
+    print('Waiting for RTP streamer connection . . .')
     while True:
         try:
             managing.rtp_server_socket.connect(("127.0.0.1", 49152))

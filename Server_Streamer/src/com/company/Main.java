@@ -13,6 +13,7 @@ public class Main {
         RtpServer streamer = new RtpServer(49152);
 
         while(true) {
+            Utils.log("");
             Utils.log("Waiting for TCP client address . . .");
             TcpClient client = new TcpClient(server.accept());
             Utils.log("TCP client connected");
@@ -23,6 +24,7 @@ public class Main {
             try {
                 addrLength = client.receiveInt();
                 final String clientJsonStr = client.receiveString(addrLength);
+                Utils.log("Received JSON: " + clientJsonStr);
                 final JSONObject clientJson = new JSONObject(clientJsonStr);
                 final String address = clientJson.getString("address");
                 final int rtp_port = clientJson.getInt("rtp_port");
@@ -31,9 +33,9 @@ public class Main {
                 streamer.addParticipant(address, rtp_port);
             } catch (IOException e) {
                 e.printStackTrace();
+                continue;
             }
             Utils.log("Got RTP client information");
-
 
             new Thread(streamer);
             while (true) {
@@ -54,7 +56,7 @@ public class Main {
                     t = new Thread(streamer);
                     t.start();
                 } catch (InterruptedException | IOException e) {
-                    e.printStackTrace();
+                    Utils.log("TCP client disconnected");
                     break;
                 }
             }

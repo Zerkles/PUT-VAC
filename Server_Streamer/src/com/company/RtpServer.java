@@ -5,7 +5,6 @@ import jlibrtp.Participant;
 import jlibrtp.RTPAppIntf;
 import jlibrtp.RTPSession;
 
-import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.net.DatagramSocket;
 
@@ -14,8 +13,6 @@ public class RtpServer implements RTPAppIntf, Runnable {
     private static final int EXTERNAL_BUFFER_SIZE = 1024;
     private ByteArrayInputStream dataIn;
 
-    // Audio configuration
-    private AudioFormat.Encoding encoding = new AudioFormat.Encoding("PCM_SIGNED");
     private boolean stop = false;
     private byte[] data;
 
@@ -39,7 +36,7 @@ public class RtpServer implements RTPAppIntf, Runnable {
         Utils.log("CNAME: " + rtpSession.CNAME());
     }
 
-    public void addParticipant(String client, int rtpPort) {
+    void addParticipant(String client, int rtpPort) {
         Participant p = new Participant(client, rtpPort, rtpPort + 1);
         rtpSession.addParticipant(p);
     }
