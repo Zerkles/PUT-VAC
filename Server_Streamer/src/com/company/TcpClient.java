@@ -39,7 +39,6 @@ class TcpClient {
         }
     }
 
-
     /**
      * Sends the message entered by client to the server
      *
@@ -89,8 +88,13 @@ class TcpClient {
      *
      * @param number Integer entered by client
      */
-    public void sendInteger(final int number) {
-        this.sendBytes(String.valueOf(number).getBytes());
+    void sendInt(final int number) {
+        this.sendBytes(new byte[]{
+                (byte) ((number >> 24) & 0xff),
+                (byte) ((number >> 16) & 0xff),
+                (byte) ((number >> 8) & 0xff),
+                (byte) (number & 0xff)
+        });
     }
 
     /**

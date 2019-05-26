@@ -7,9 +7,9 @@ import java.net.Socket;
 class TcpServer {
     private ServerSocket serverSocket = null;
 
-    TcpServer(int port) {
+    TcpServer(int tcpPort) {
         try {
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(tcpPort);
         } catch (IOException e) {
             e.printStackTrace();
         }

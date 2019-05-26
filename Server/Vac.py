@@ -8,13 +8,12 @@ class Vac:
     ready = False
     sample_rate: int = 44100
     sample = np.array([])
-    stream = None
     proc_pool: Pool = None
     rtp_socket: socket = None
 
     def __init__(self, rtp_socket: socket):
         self.rtp_socket = rtp_socket
-        self.proc_pool = Pool(20)
+        self.proc_pool = Pool(30)
         return
 
     def feed_image(self, img):
@@ -33,14 +32,4 @@ class Vac:
             self.rtp_socket,
         )
         self.proc_pool.apply_async(func=converting.gen_sound_from_image, args=args)
-        return
-
-    def start(self):
-        self.stream.start_stream()
-        return
-
-    def shutdown(self):
-        # stop stream
-        self.stream.stop_stream()
-        self.stream.close()
         return

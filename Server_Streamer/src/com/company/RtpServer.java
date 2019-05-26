@@ -22,7 +22,6 @@ public class RtpServer implements RTPAppIntf, Runnable {
         DatagramSocket rtcpSocket;
 
         try {
-            Utils.log(rtpPort);
             rtpSocket = new DatagramSocket(rtpPort);
             rtcpSocket = new DatagramSocket(rtpPort + 1);
         } catch (Exception e) {
@@ -33,7 +32,6 @@ public class RtpServer implements RTPAppIntf, Runnable {
 
         rtpSession = new RTPSession(rtpSocket, rtcpSocket);
         rtpSession.RTPSessionRegister(this, null, null);
-        Utils.log("CNAME: " + rtpSession.CNAME());
     }
 
     void addParticipant(String client, int rtpPort) {

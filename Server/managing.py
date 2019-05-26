@@ -14,8 +14,7 @@ tcp_port: int = 55000
 
 # RTP port assigned to client
 # increases by 2 with every successful connect request
-# NOTE: 2 first ports are taken by RTP streamer
-rtp_port: int = 49154
+rtp_port: int = 49152
 
 manager_thread: Thread = Thread()
 terminate_proc_manager: bool = False
@@ -88,16 +87,14 @@ def receive_data(conn, recv_size: int, converter: Vac):
     return msg, img
 
 
-preview_num = int(1)
-
-
 # Listen function for process
-def proc_listen(proc_socket, rtp_socket):
-    global preview_num
+def proc_listen(client_socket, streamer_tcp_port):
+    rtp_socket = socket(AF_INET, SOCK_STREAM)
+    rtp_socket.connect(("127.0.0.1", streamer_tcp_port))
 
     converter = Vac(rtp_socket)
 
-    conn, address = proc_socket.accept()
+    conn, address = client_socket.accept()
     print('Client connected!')
     not_int_size = 0
     while True:
@@ -110,10 +107,6 @@ def proc_listen(proc_socket, rtp_socket):
                 recv_size = int.from_bytes(recv_data, "big")
                 # print(str('Size: ' + str(recv_size)))
                 msg, img = receive_data(conn, recv_size, converter)
-
-                # cv2.imshow("Preview " + str(len(img) + preview_num), img)
-                # cv2.waitKey(40)
-                # preview_num += 1
 
                 if msg == TypeError:
                     continue
@@ -142,20 +135,12 @@ def add_client(request):
         client_tcp_port = tcp_port
         client_rtp_port = rtp_port
         tcp_port += 1
-        rtp_port += 2
+        rtp_port += 4
 
         sock = socket(AF_INET, SOCK_STREAM)
         client_sockets[str(request.remote_addr)] = sock
         client_sockets[str(request.remote_addr)].bind(('', client_tcp_port))
         client_sockets[str(request.remote_addr)].listen(1)
-
-        # Critical section
-        global_lock.acquire()
-        proc = Process(target=proc_listen, args=(sock, rtp_server_socket,))
-        processes[str(request.remote_addr)] = proc
-        proc.start()
-        global_lock.release()
-        # End critical section
 
         # Sending client information to RTP streamer
         client_addr: str = request.remote_addr
@@ -163,11 +148,23 @@ def add_client(request):
         client_json_str: str = json.dumps(client_json)
         rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
         rtp_server_socket.send(client_json_str.encode())
+        print("Client info: " + client_json_str)
+
+        recv_data = rtp_server_socket.recv(4)
+        streamer_tcp_port = int.from_bytes(recv_data, "big")
+
+        # Critical section
+        global_lock.acquire()
+        proc = Process(target=proc_listen, args=(sock, streamer_tcp_port,))
+        processes[str(request.remote_addr)] = proc
+        proc.start()
+        global_lock.release()
+        # End critical section
 
         # Building response
         response_json = {'tcp_port': client_tcp_port, 'rtp_port': client_rtp_port}
         response_json_str = json.dumps(response_json)
-        print(response_json_str)
+        print("Response: " + response_json_str)
         return response_json_str
     else:
         return 'connected'
