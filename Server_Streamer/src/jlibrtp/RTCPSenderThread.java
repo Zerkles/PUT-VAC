@@ -176,7 +176,6 @@ public class RTCPSenderThread extends Thread {
 			}
 		} catch (Exception e) {
 			System.out.println("RTCPSenderThread.SendCompRtcpPkt() unicast failed.");
-			e.printStackTrace();
 			return -1;
 		}
 		return packet.getLength();

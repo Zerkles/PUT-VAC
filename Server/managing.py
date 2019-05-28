@@ -170,6 +170,7 @@ def add_client(request):
 def remove_client(request):
     global tcp_port
     global global_lock
+    global rtp_server_socket
 
     if str(request.remote_addr) in client_sockets.keys():
         client_port = client_sockets[str(request.remote_addr)].getsockname()[1]
@@ -183,6 +184,12 @@ def remove_client(request):
         del client_sockets[str(request.remote_addr)]
         global_lock.release()
         # End critical section
+
+        client_addr: str = request.remote_addr
+        client_json = {'address': client_addr}
+        client_json_str: str = json.dumps(client_json)
+        rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
+        rtp_server_socket.send(client_json_str.encode())
 
         print("Client disconnected: " + request.remote_addr)
         return 'disconnect_success'

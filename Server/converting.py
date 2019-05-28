@@ -31,48 +31,48 @@ def process_image(size, img):
     return img_arr
 
 
-def gen_sound_from_image(img, duration, sample_rate, intensity_factor, min_freq, max_freq,
-                         rtp_socket: socket):
-    max_frame = int(duration * sample_rate)
-    max_intensity = 32767  # Defined by WAV
+def gen_sound_from_image(img, duration, sample_rate, intensity_factor, min_freq, max_freq, rtp_socket: socket):
+    max_frame: int = int(duration * sample_rate)
+    max_intensity: int = 32767  # Defined by WAV
 
-    step_size = 400  # Hz, each pixel's portion of the spectrum
-    stepping_spectrum = int((max_freq - min_freq) / step_size)
+    step_size: int = 400  # Hz, each pixel's portion of the spectrum
+    stepping_spectrum: int = int((max_freq - min_freq) / step_size)
 
     img_mat = process_image(size=(stepping_spectrum, max_frame), img=img)
-
-    # img_mat *= intensity_factor  # To lower/increase the image overall intensity
-    # img_mat /= np.full(img_mat.shape, 255, img_mat.dtype)
     img_mat *= max_intensity  # To scale it to max WAV audio intensity
-    buf = []
+    buf: list = []
 
     for frame in range(max_frame):
-        # end if
-        signal_value, count = float(0), int(0)
+        signal_value: float = 0.0
+        count: int = 0
+
         for step in range(stepping_spectrum):
             intensity = img_mat[step, frame]
             if intensity < 0.1 * intensity_factor:
                 continue
-            # end if
+
             # nextFreq is less than currentFreq
             current_freq = (step * step_size) + min_freq
             next_freq = ((step + 1) * step_size) + min_freq
             if next_freq - min_freq > max_freq:  # If we're at the end of the spectrum
                 next_freq = max_freq
-            # end if
+
             for freq in range(current_freq, next_freq, 1000):  # substep of 1000 Hz is good
                 signal_value += float(intensity * math.cos(freq * 2 * math.pi * float(frame) / float(sample_rate)))
                 count += 1
-            # end for
+
         if count == 0:
             count = 1
-        # end if
+
         signal_value /= count
         buf.append(int(signal_value))
+
+        # Send to streamer
         if len(buf) >= 1024:
             send_chunk(rtp_socket, buf)
             buf = []
-    # end for
+
+    # If some data left send it again to streamer
     if len(buf) > 0:
         send_chunk(rtp_socket, buf)
 

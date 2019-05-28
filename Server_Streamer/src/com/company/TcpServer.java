@@ -23,4 +23,14 @@ class TcpServer {
         }
         return null;
     }
+
+    public void close() {
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

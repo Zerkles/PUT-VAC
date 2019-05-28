@@ -16,11 +16,10 @@ public class RtpServer implements RTPAppIntf, Runnable {
     private boolean stop = false;
     private byte[] data;
 
+    private DatagramSocket rtpSocket;
+    private DatagramSocket rtcpSocket;
 
     RtpServer(int rtpPort) {
-        DatagramSocket rtpSocket;
-        DatagramSocket rtcpSocket;
-
         try {
             rtpSocket = new DatagramSocket(rtpPort);
             rtcpSocket = new DatagramSocket(rtpPort + 1);
@@ -80,5 +79,17 @@ public class RtpServer implements RTPAppIntf, Runnable {
         }
 
         stop = false;
+    }
+
+    public void shutdown() {
+        if(rtpSocket != null) {
+            rtpSocket.close();
+            rtpSocket = null;
+        }
+        if(rtcpSocket != null) {
+            rtcpSocket.close();
+            rtcpSocket = null;
+        }
+        rtpSession.endSession();
     }
 }

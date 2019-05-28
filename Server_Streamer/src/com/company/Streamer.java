@@ -10,10 +10,30 @@ public class Streamer implements Runnable {
     private int rtpPort;
     private Thread t;
 
+    private TcpServer server;
+    private TcpClient client;
+    private RtpServer streamer;
+
     Streamer(String address, int tcpPort, int rtpPort) {
         this.address = address;
         this.tcpPort = tcpPort;
         this.rtpPort = rtpPort;
+    }
+
+    void exit() {
+        if (client != null) {
+            client.close();
+            Utils.log("Streamer: " + "Client socket closed");
+        }
+        if (server != null) {
+            server.close();
+            Utils.log("Streamer: " + "Server socket closed");
+        }
+        if (streamer != null){
+            streamer.stop();
+            streamer.shutdown();
+            Utils.log("Streamer: " + "Streamer stopped");
+        }
     }
 
     public void run() {
@@ -21,10 +41,10 @@ public class Streamer implements Runnable {
         Utils.log("Streamer: " + "Server connection address: 127.0.0.1:" + tcpPort);
         Utils.log("Streamer: " + "RTP client address: " + address + ":" + rtpPort);
         Utils.log("Streamer: " + "RTP server address: 0.0.0.0:" + (rtpPort + 2));
-        TcpServer server = new TcpServer(tcpPort);
-        RtpServer streamer = new RtpServer(rtpPort + 2);
+        server = new TcpServer(tcpPort);
+        streamer = new RtpServer(rtpPort + 2);
         streamer.addParticipant(address, rtpPort);
-        TcpClient client = new TcpClient(server.accept());
+        client = new TcpClient(server.accept());
         Utils.log("Streamer: " + "RTP streamer setup finish");
 
         while (true) {
@@ -42,10 +62,14 @@ public class Streamer implements Runnable {
                 }
             } catch (IOException e) {
                 Utils.log("Streamer: " + "TCP client disconnected");
-                streamer.stop();
+                this.exit();
                 break;
             }
         }
         Utils.log("Streamer: " + "Thread finished");
+    }
+
+    public String getAddress() {
+        return address;
     }
 }

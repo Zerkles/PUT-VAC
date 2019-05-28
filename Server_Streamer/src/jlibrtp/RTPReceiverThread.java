@@ -71,7 +71,6 @@ public class RTPReceiverThread extends Thread {
 					rtpSession.rtpSock.receive(packet);
 				} catch (IOException e) {
 					if(!rtpSession.endSession) {
-						e.printStackTrace();
 					} else {
 						continue;
 					}

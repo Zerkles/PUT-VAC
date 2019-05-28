@@ -13,12 +13,12 @@ class Vac:
 
     def __init__(self, rtp_socket: socket):
         self.rtp_socket = rtp_socket
-        self.proc_pool = Pool(20)
+        self.proc_pool = Pool(5)
         print("Vac constructed")
         return
 
     def feed_image(self, img):
-        duration = 0.25
+        duration = 0.045
         min_freq = 0
         max_freq = int(self.sample_rate / 2)
         intensity_factor = 1

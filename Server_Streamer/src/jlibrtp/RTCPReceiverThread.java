@@ -334,7 +334,6 @@ public class RTCPReceiverThread extends Thread {
 					rtcpSession.rtcpSock.receive(packet);
 				} catch (IOException e) {
 					if(!rtpSession.endSession) {
-						e.printStackTrace();
 					} else {
 						continue;
 					}

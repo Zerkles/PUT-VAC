@@ -120,7 +120,15 @@ class TcpClient {
     /**
      * Close the connection with server
      */
-    public void disconnect() {
+    void disconnect() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void close(){
         try {
             socket.close();
         } catch (IOException e) {
