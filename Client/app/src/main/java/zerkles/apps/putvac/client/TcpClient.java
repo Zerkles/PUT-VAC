@@ -15,14 +15,8 @@ class TcpClient {
     int SERVER_PORT = 0;
     private Socket socket = new Socket();
 
+
     private DataOutputStream outputStream;
-
-    /**
-     * Constructor of the class
-     */
-    TcpClient() {
-    }
-
 
     /**
      * Sends the message entered by client to the server
@@ -50,17 +44,18 @@ class TcpClient {
     }
 
     /**
-     * Sends the message entered by client to the server
+     * Sends number to server
      *
      * @param number value entered by client
      */
-    void sendNumber(final int number) {
-        this.sendBytes(String.valueOf(number).getBytes());
+    void sendInt(final int number) {
+        this.sendBytes(new byte[]{
+                (byte) ((number >> 24) & 0xff),
+                (byte) ((number >> 16) & 0xff),
+                (byte) ((number >> 8) & 0xff),
+                (byte) (number & 0xff),
+        });
     }
-
-    /**
-     * Close the connection and release the members
-     */
 
     void connect() {
         try {
@@ -89,27 +84,5 @@ class TcpClient {
 
     Socket getSocket() {
         return socket;
-    }
-
-    void checkConnStatus(InetSocketAddress addr) {
-        if (addr != null && socket.isConnected()) {
-            boolean reachable = false;
-            try {
-                // Dla większego TTL trzebaby zwiększyć
-                reachable = socket.getInetAddress().isReachable(10);
-                Log.d("tcpClient_checkConn", "Connected");
-            } catch (IOException ignored) {
-                Log.d("tcpClient_checkConn", "Disconnected");
-                ignored.printStackTrace();
-            } finally {
-                if (!reachable) {
-                    try {
-                        socket.close();
-                    } catch (IOException ignored) {
-                        ignored.printStackTrace();
-                    }
-                }
-            }
-        }
     }
 }

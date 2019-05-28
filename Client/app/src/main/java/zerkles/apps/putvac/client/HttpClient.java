@@ -28,7 +28,7 @@ class HttpClient {
                 result = in.readLine();
             }
         } catch (Exception e) {
-            Log.d("httpClient_sendRequest", e.toString() + "ERR");
+            Log.d("httpClient_sendRequest", e.toString());
             e.printStackTrace();
         }
         return result;

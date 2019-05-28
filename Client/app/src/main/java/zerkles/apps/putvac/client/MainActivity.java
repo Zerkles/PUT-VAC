@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,11 +16,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MainActivity extends AppCompatActivity {
 
     static TcpClient tcpClient;
-    static ReceiverRTP rtpClient;
+    static RtpClient rtpClient;
     Button btn_send, btn_connect, btn_disconnect, btn_camera;
     static EditText ed_txt, ed_txt2;
     static TextView tv_tcp, tv_rtp;
@@ -57,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 new ConnectionTasks().execute("CONNECT");
-                new ConnectionTasks().execute("RTP");
             }
         });
 
@@ -87,21 +90,8 @@ public class MainActivity extends AppCompatActivity {
     // -------- getter methods
 
     public static String getIP() {
-        if (ed_txt.getText() != null) {
-            return (ed_txt.getText().toString());
-        }
-        return null;
+        return (ed_txt.getText().toString());
     }
-
-    public static String getPort(String protocol) {
-        if (protocol.equals("TCP")) {
-            return HttpClient.sendRequest("GET", getIP(), "/VAC/TCP");
-        } else if (protocol.equals("RTP")) {
-            return HttpClient.sendRequest("GET", getIP(), "/VAC/RTP");
-        }
-        return null;
-    }
-
 
     // -------- task classes
 
@@ -111,6 +101,21 @@ public class MainActivity extends AppCompatActivity {
 
             switch (strings[0]) {
                 case "CONNECT": {
+                    String response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect");
+
+                    if(response!=null){
+                        try{
+                            JSONObject config = new JSONObject(response);
+                            new ConnectionTasks().execute("TCP",config.getString("tcp_port"));
+                            new ConnectionTasks().execute("RTP",config.getString("rtp_port"));
+                        }
+                        catch(JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                break;
+                case "TCP": {
                     if (tcpClient != null) {
                         tcpClient.disconnect();
                         tcpClient = null;
@@ -118,11 +123,26 @@ public class MainActivity extends AppCompatActivity {
 
                     tcpClient = new TcpClient();
 
-                    String PortTCP_S = getPort("TCP");
+                    String PortTCP_S = strings[1];
                     if (getIP() != null && PortTCP_S != null) {
                         tcpClient.SERVER_IP = getIP();
                         tcpClient.SERVER_PORT = Integer.parseInt(PortTCP_S);
                         tcpClient.connect();
+                    }
+
+                }
+                break;
+
+                case "RTP": {
+                    if (rtpClient != null) {
+                        rtpClient.disconnect();
+                        rtpClient = null;
+                    }
+
+                    String PortRTP_S = strings[1];
+                    if (PortRTP_S != null) {
+                        int port = Integer.parseInt(PortRTP_S);
+                        rtpClient = new RtpClient(port, port + 1);
                     }
 
                 }
@@ -138,21 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 }
-                break;
-                case "RTP": {
-                    if (rtpClient != null) {
-                        rtpClient.disconnect();
-                        rtpClient = null;
-                    }
 
-                    String PortRTP_S = getPort("RTP");
-                    if (PortRTP_S != null) {
-                        int port = Integer.parseInt(PortRTP_S);
-                        rtpClient = new ReceiverRTP(port, port + 1);
-                    }
-
-                }
-                break;
                 default: {
                     Log.d("ConnectionTasks", "Wrong Task!");
                 }
@@ -168,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected byte[] doInBackground(String... strings) {
             if (tcpClient != null) {
-                tcpClient.sendNumber(strings[0].length());
+                tcpClient.sendInt(strings[0].length());
                 tcpClient.sendString(strings[0]);
             }
             return null;
@@ -189,7 +195,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    static void updateConnectionStatus(TcpClient tcpClient, ReceiverRTP rtpClient, TextView tv_rtp, TextView tv_tcp) {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Application cannot work without permissions", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+    }
+
+    static void updateConnectionStatus(TcpClient tcpClient, RtpClient rtpClient, TextView tv_rtp, TextView tv_tcp) {
         if (tcpClient == null || tcpClient.getSocket() == null || !tcpClient.getSocket().isConnected()) {
             Log.d("tcpClient_upConnStatus", "NOT Connected!");
             tv_tcp.setText("TCP Connection: NONE");
