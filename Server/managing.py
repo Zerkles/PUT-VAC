@@ -131,43 +131,40 @@ def add_client(request):
     global rtp_port
     global global_lock
 
-    if not str(request.remote_addr) in client_sockets.keys():
-        client_tcp_port = tcp_port
-        client_rtp_port = rtp_port
-        tcp_port += 1
-        rtp_port += 4
+    client_tcp_port = tcp_port
+    client_rtp_port = rtp_port
+    tcp_port += 1
+    rtp_port += 4
 
-        sock = socket(AF_INET, SOCK_STREAM)
-        client_sockets[str(request.remote_addr)] = sock
-        client_sockets[str(request.remote_addr)].bind(('', client_tcp_port))
-        client_sockets[str(request.remote_addr)].listen(1)
+    sock = socket(AF_INET, SOCK_STREAM)
+    client_sockets[str(request.remote_addr)] = sock
+    client_sockets[str(request.remote_addr)].bind(('', client_tcp_port))
+    client_sockets[str(request.remote_addr)].listen(1)
 
-        # Sending client information to RTP streamer
-        client_addr: str = request.remote_addr
-        client_json = {'address': client_addr, 'rtp_port': client_rtp_port}
-        client_json_str: str = json.dumps(client_json)
-        rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
-        rtp_server_socket.send(client_json_str.encode())
-        print("Client info: " + client_json_str)
+    # Sending client information to RTP streamer
+    client_addr: str = request.remote_addr
+    client_json = {'address': client_addr, 'rtp_port': client_rtp_port}
+    client_json_str: str = json.dumps(client_json)
+    rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
+    rtp_server_socket.send(client_json_str.encode())
+    print("Client info: " + client_json_str)
 
-        recv_data = rtp_server_socket.recv(4)
-        streamer_tcp_port = int.from_bytes(recv_data, "big")
+    recv_data = rtp_server_socket.recv(4)
+    streamer_tcp_port = int.from_bytes(recv_data, "big")
 
-        # Critical section
-        global_lock.acquire()
-        proc = Process(target=proc_listen, args=(sock, streamer_tcp_port,))
-        processes[str(request.remote_addr)] = proc
-        proc.start()
-        global_lock.release()
-        # End critical section
+    # Critical section
+    global_lock.acquire()
+    proc = Process(target=proc_listen, args=(sock, streamer_tcp_port,))
+    processes[str(request.remote_addr)] = proc
+    proc.start()
+    global_lock.release()
+    # End critical section
 
-        # Building response
-        response_json = {'tcp_port': client_tcp_port, 'rtp_port': client_rtp_port}
-        response_json_str = json.dumps(response_json)
-        print("Response: " + response_json_str)
-        return response_json_str
-    else:
-        return 'connected'
+    # Building response
+    response_json = {'tcp_port': client_tcp_port, 'rtp_port': client_rtp_port}
+    response_json_str = json.dumps(response_json)
+    print("Response: " + response_json_str)
+    return response_json_str
 
 
 def remove_client(request):

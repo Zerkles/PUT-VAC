@@ -13,7 +13,8 @@ class Vac:
 
     def __init__(self, rtp_socket: socket):
         self.rtp_socket = rtp_socket
-        self.proc_pool = Pool(30)
+        self.proc_pool = Pool(20)
+        print("Vac constructed")
         return
 
     def feed_image(self, img):
