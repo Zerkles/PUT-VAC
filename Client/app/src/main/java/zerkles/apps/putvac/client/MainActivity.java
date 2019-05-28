@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         return (ed_txt.getText().toString());
     }
 
-    // -------- task classes
+    // -------- tasks
 
     public static class ConnectionTasks extends AsyncTask<String, String, String> {
         @Override
@@ -181,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // -------- permissions checkout
+
     void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
@@ -203,6 +205,17 @@ public class MainActivity extends AppCompatActivity {
             }
     }
 
+    // -------- other methods
+
+    public void startCameraActivity() {
+        if (tcpClient == null || !tcpClient.getSocket().isConnected() || rtpClient == null) {
+            Toast.makeText(MainActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(this, CameraActivity.class);
+            startActivity(intent);
+        }
+    }
+
     static void updateConnectionStatus(TcpClient tcpClient, RtpClient rtpClient, TextView tv_rtp, TextView tv_tcp) {
         if (tcpClient == null || tcpClient.getSocket() == null || !tcpClient.getSocket().isConnected()) {
             Log.d("tcpClient_upConnStatus", "NOT Connected!");
@@ -218,17 +231,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d("rtpClient_upConnStatus", "Connected!");
             tv_rtp.setText("RTP Port: " + rtpClient.getPort());
-        }
-    }
-
-    // -------- activity methods
-
-    public void startCameraActivity() {
-        if (tcpClient == null || !tcpClient.getSocket().isConnected() || rtpClient == null) {
-            Toast.makeText(MainActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent intent = new Intent(this, CameraActivity.class);
-            startActivity(intent);
         }
     }
 }

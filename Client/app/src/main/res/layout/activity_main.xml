@@ -25,9 +25,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:hint="IP"
+                android:hint="@string/ip"
                 android:inputType="textPersonName"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:autofillHints="" />
 
             <EditText
                 android:id="@+id/ed_txt2"
@@ -37,9 +38,10 @@
                 android:layout_marginStart="0dp"
                 android:layout_marginEnd="0dp"
                 android:ems="10"
-                android:hint="Text"
+                android:hint="@string/text"
                 android:inputType="textPersonName"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:autofillHints="" />
         </LinearLayout>
 
 
@@ -56,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
                 android:layout_weight="1"
-                android:text="CONNECT" />
+                android:text="@string/connect" />
 
             <Button
                 android:id="@+id/btn_disconnect"
@@ -64,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="0dp"
                 android:layout_weight="1"
-                android:text="DISCONNECT" />
+                android:text="@string/disconnect" />
         </LinearLayout>
 
         <LinearLayout
@@ -81,19 +83,19 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
                 android:layout_marginEnd="0dp"
-                android:text="SEND" />
+                android:text="@string/send" />
 
             <Button
                 android:id="@+id/btn_camera"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="CAMERA" />
+                android:text="@string/camera" />
 
             <TextView
                 android:id="@+id/tv_rtp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="RTP Port:" />
+                android:text="@string/rtp_port" />
 
             <TextView
                 android:id="@+id/tv_tcp"
@@ -101,7 +103,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
                 android:layout_marginEnd="0dp"
-                android:text="TCP Connection:" />
+                android:text="@string/tcp_connection" />
 
         </LinearLayout>
     </LinearLayout>

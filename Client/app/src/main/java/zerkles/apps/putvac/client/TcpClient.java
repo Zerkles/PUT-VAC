@@ -1,12 +1,10 @@
 package zerkles.apps.putvac.client;
 
 import android.util.Log;
-import android.widget.TextView;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 
