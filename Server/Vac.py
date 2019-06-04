@@ -18,7 +18,7 @@ class Vac:
         return
 
     def feed_image(self, img):
-        duration = 0.045
+        duration = 2.0
         min_freq = 0
         max_freq = int(self.sample_rate / 2)
         intensity_factor = 1
