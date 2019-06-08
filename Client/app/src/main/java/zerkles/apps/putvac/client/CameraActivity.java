@@ -98,7 +98,7 @@ public class CameraActivity extends AppCompatActivity {
         btn_capture.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 new ToggleTask().execute();
-                MainActivity.rtpClient.TogglePause();
+                MenuActivity.rtpClient.TogglePause();
             }
         });
     }
@@ -144,8 +144,8 @@ public class CameraActivity extends AppCompatActivity {
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes, 0, bytes.length);
 
-                        MainActivity.tcpClient.sendInt(bytes.length);
-                        MainActivity.tcpClient.sendBytes(bytes);
+                        MenuActivity.tcpClient.sendInt(bytes.length);
+                        MenuActivity.tcpClient.sendBytes(bytes);
                     } finally {
                         {
                             if (image != null)
@@ -322,7 +322,7 @@ public class CameraActivity extends AppCompatActivity {
         protected byte[] doInBackground(String... strings) {
             while (btn_capture.isChecked()) {
                 takePicture(false);
-                sleep(50); /// 40-25 kl/s
+                sleep(1000); /// 40-25 kl/s
             }
             sleep(1000);
             takePicture(true);

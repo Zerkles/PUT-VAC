@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,40 +19,41 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MenuActivity extends AppCompatActivity {
 
     static TcpClient tcpClient;
     static RtpClient rtpClient;
-    Button btn_send, btn_connect, btn_disconnect, btn_camera;
-    static EditText ed_txt, ed_txt2;
+    Button btn_connect, btn_disconnect, btn_camera, btn_sql, btn_tcpTest;
     static TextView tv_tcp, tv_rtp;
+    static String addr_ip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_menu);
 
-        btn_send = findViewById(R.id.btn_send);
         btn_connect = findViewById(R.id.btn_connect);
         btn_disconnect = findViewById(R.id.btn_disconnect);
+        btn_sql = findViewById(R.id.btn_sql);
+        btn_tcpTest = findViewById(R.id.btn_tcpTest);
         btn_camera = findViewById(R.id.btn_camera);
-        ed_txt = findViewById(R.id.ed_txt);
-        ed_txt2 = findViewById(R.id.ed_txt2);
+
         tv_tcp = findViewById(R.id.tv_tcp);
         tv_rtp = findViewById(R.id.tv_rtp);
 
         checkPermissions();
 
-        btn_send.setOnClickListener(new View.OnClickListener() {
+        btn_sql.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //sends the message through TCP to the server
-                if (tcpClient != null && ed_txt2.getText() != null) {
-                    String text = ed_txt2.getText().toString();
-                    if (!text.isEmpty()) {
-                        new SendTask().execute(text);
-                    }
-                }
+                startSqlActivity();
+            }
+        });
+
+        btn_tcpTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startTcpTestActivity();
             }
         });
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     // -------- getter methods
 
     public static String getIP() {
-        return (ed_txt.getText().toString());
+        return addr_ip;
     }
 
     // -------- tasks
@@ -103,13 +103,12 @@ public class MainActivity extends AppCompatActivity {
                 case "CONNECT": {
                     String response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect");
 
-                    if(response!=null){
-                        try{
+                    if (response != null) {
+                        try {
                             JSONObject config = new JSONObject(response);
-                            new ConnectionTasks().execute("TCP",config.getString("tcp_port"));
-                            new ConnectionTasks().execute("RTP",config.getString("rtp_port"));
-                        }
-                        catch(JSONException e){
+                            new ConnectionTasks().execute("TCP", config.getString("tcp_port"));
+                            new ConnectionTasks().execute("RTP", config.getString("rtp_port"));
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
@@ -199,20 +198,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Application cannot work without permissions", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-    }
-
-    // -------- other methods
-
-    public void startCameraActivity() {
-        if (tcpClient == null || !tcpClient.getSocket().isConnected() || rtpClient == null) {
-            Toast.makeText(MainActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent intent = new Intent(this, CameraActivity.class);
-            startActivity(intent);
+        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Application cannot work without permissions", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -233,6 +221,28 @@ public class MainActivity extends AppCompatActivity {
             tv_rtp.setText("RTP Port: " + rtpClient.getPort());
         }
     }
+
+    // -------- activity methods
+
+    public void startCameraActivity() {
+        if (tcpClient == null || !tcpClient.getSocket().isConnected() || rtpClient == null) {
+            Toast.makeText(MenuActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(this, CameraActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    public void startSqlActivity() {
+        Intent intent = new Intent(this, DataBaseActivity.class);
+        startActivity(intent);
+    }
+
+    public void startTcpTestActivity() {
+        Intent intent = new Intent(this, TcpTestActivity.class);
+        startActivity(intent);
+    }
+
 }
 
 

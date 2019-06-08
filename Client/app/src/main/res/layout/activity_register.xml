@@ -9,16 +9,6 @@
     tools:context=".LoginActivity">
 
     <EditText
-        android:id="@+id/ed_IP"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:digits="0123456789."
-        android:ems="10"
-        android:gravity="center"
-        android:hint="IP Addres"
-        android:inputType="number" />
-
-    <EditText
         android:id="@+id/ed_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,17 +26,19 @@
         android:hint="Password"
         android:inputType="textPassword" />
 
+    <EditText
+        android:id="@+id/ed_passwordRepeat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Repeat  Password"
+        android:inputType="textPassword" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btn_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Login" />
 
         <Button
             android:id="@+id/btn_register"

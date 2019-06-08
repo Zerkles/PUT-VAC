@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">Client</string>
-    <string name="disconnect">DISCONNECT</string>
+    <string name="app_name">VAC Client</string>
+    <string name="disconnect">Disconnect TCP/RTP</string>
     <string name="send">SEND</string>
-    <string name="connect">CONNECT</string>
-    <string name="camera">CAMERA</string>
+    <string name="connect">Connect TCP/RTP</string>
+    <string name="camera">Camera</string>
     <string name="rtp_port">RTP Port:</string>
     <string name="tcp_connection">TCP Connection:</string>
     <string name="ip">IP</string>
