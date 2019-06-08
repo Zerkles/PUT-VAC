@@ -66,6 +66,7 @@ def shutdown():
 
 
 # Database routes
+
 @app.route('/VAC/db/test/', methods=['GET'])
 def db_test():
     table: dict = database.test_get()
@@ -77,12 +78,27 @@ def db_test():
 def db_user():
     if request.method == 'POST':
         payload = json.loads(request.data)
-        database.user_insert(payload['login'], payload['passwd'])
-        return 201
+        if database.user_insert(payload['login'], payload['passwd']):
+            return 201
+        else:
+            return 400
     elif request.method == 'DELETE':
         payload = json.loads(request.data)
         database.user_delete(payload('login'))
         return 200
+
+
+@app.route('/VAC/db/Statistics/', methods=['GET'])
+def db_statistics():
+    login: str = request.args['login']
+    type: str = request.args['type']
+    if type == 'data_amount':
+        pass
+    elif type == 'session_time':
+        pass
+    elif type == 'login_history':
+        pass
+    return '{"0": "TODO"}'
 
 
 def main():

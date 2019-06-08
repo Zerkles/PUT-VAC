@@ -143,9 +143,9 @@ def entries_max_id() -> int:
 
 
 def entries_insert(content: str) -> None:
-    id = str(entries_max_id() + 1)
+    eid = str(entries_max_id() + 1)
 
     date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
     sql_query = 'insert into Entries values' + \
-                '(' + id + ',\'' + content + '\',' + date + ')'
+                '(' + eid + ',\'' + content + '\',' + date + ')'
     query_non_return(sql_query)
