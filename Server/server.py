@@ -90,8 +90,9 @@ def db_user():
 
 @app.route('/VAC/db/Statistics/', methods=['GET'])
 def db_statistics():
-    login: str = request.args['login']
-    type: str = request.args['type']
+    payload = json.loads(request.data)
+    login: str = payload['login']
+    type: str = payload['type']
     if type == 'data_amount':
         pass
     elif type == 'session_time':
