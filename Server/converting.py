@@ -8,7 +8,7 @@ source: https://www.hackster.io/sam1902/encode-image-in-sound-with-python-f46a3f
 '''
 
 
-def process_image(size, img):
+def process_image(size, img) -> np.array:
     img_arr = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Scale between 0 and 1
@@ -31,7 +31,7 @@ def process_image(size, img):
     return img_arr
 
 
-def gen_sound_from_image(img, duration, sample_rate, intensity_factor, min_freq, max_freq, rtp_socket: socket):
+def gen_sound_from_image(img, duration, sample_rate, intensity_factor, min_freq, max_freq, rtp_socket: socket) -> None:
     max_frame: int = int(duration * sample_rate)
     max_intensity: int = 32767  # Defined by WAV
 
@@ -77,7 +77,7 @@ def gen_sound_from_image(img, duration, sample_rate, intensity_factor, min_freq,
         send_chunk(rtp_socket, buf)
 
 
-def int16_to_bytes(data: []):
+def int16_to_bytes(data: list) -> bytes:
     result: list = []
 
     for e in data:
@@ -89,10 +89,7 @@ def int16_to_bytes(data: []):
     return bytes(result)
 
 
-def send_chunk(rtp_socket: socket, buf: []):
+def send_chunk(rtp_socket: socket, buf: []) -> None:
     data = int16_to_bytes(buf)
     rtp_socket.send(len(data).to_bytes(4, byteorder='big'))
     rtp_socket.send(data)
-    # print("+------------------------+")
-    # print("| Sent sound with length : " + str(len(data)))
-    # print("+------------------------+")
