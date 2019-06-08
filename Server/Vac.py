@@ -17,7 +17,7 @@ class Vac:
         print("Vac constructed")
         return
 
-    def feed_image(self, img):
+    def feed_image(self, img) -> None:
         duration = 2.0
         min_freq = 0
         max_freq = int(self.sample_rate / 2)
@@ -33,4 +33,3 @@ class Vac:
             self.rtp_socket,
         )
         self.proc_pool.apply_async(func=converting.gen_sound_from_image, args=args)
-        return

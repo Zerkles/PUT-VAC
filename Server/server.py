@@ -1,34 +1,18 @@
 import json
-from pathlib import Path
-from typing import Dict
 
 from flask import request
 from flask_cors import CORS
 from flask import Flask, render_template
-import pymssql
 
 import atexit
 
 import managing
+import database
 
 # app init
 app = Flask(__name__, template_folder='templates')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-
-config_json = json.loads(Path('config.json').read_text())
-
-
-def db_connect():
-    global config_json
-    # Connect to Microsoft SQL server
-    conn = pymssql.connect(
-        server=config_json['server'],
-        user=config_json['user'],
-        password=config_json['password'],
-        database=config_json['database']
-    )
-    return conn
 
 
 @app.route('/VAC/connect')
@@ -39,21 +23,8 @@ def connect():
 
 @app.route('/VAC/db/test/')
 def db_test():
-    conn = db_connect()
-    cursor = conn.cursor()
-    # Get all students from database
-    cursor.execute('select * from Test_Table;')
-    row = cursor.fetchone()
-    dictionary: dict = {}
-
-    i: int = 0
-    while row:
-        dictionary[str(i)] = []
-        for elem in row:
-            dictionary[str(i)].append(elem)
-        i += 1
-        row = cursor.fetchone()
-    json_str = json.dumps(dictionary)
+    table: dict = database.test_get()
+    json_str = json.dumps(table)
     return json_str
 
 
@@ -66,7 +37,7 @@ def disconnect():
 @app.route('/')
 @app.route('/VAC/')
 def test():
-    return "VAC is working!", 200
+    return "<p>VAC is working!</p>", 200
 
 
 @app.route('/VAC/manager')

@@ -29,7 +29,7 @@ rtp_server_socket = socket(AF_INET, SOCK_STREAM)
 
 
 # To be used on app exit
-def cleanup():
+def cleanup() -> None:
     global terminate_proc_manager
     global client_sockets
     global processes
@@ -88,7 +88,7 @@ def receive_data(conn, recv_size: int, converter: Vac):
 
 
 # Listen function for process
-def proc_listen(client_socket, streamer_tcp_port):
+def proc_listen(client_socket, streamer_tcp_port) -> None:
     rtp_socket = socket(AF_INET, SOCK_STREAM)
     rtp_socket.connect(("127.0.0.1", streamer_tcp_port))
 
@@ -126,7 +126,7 @@ def proc_listen(client_socket, streamer_tcp_port):
     cv2.destroyAllWindows()
 
 
-def add_client(request):
+def add_client(request) -> str:
     global tcp_port
     global rtp_port
     global global_lock
@@ -167,7 +167,7 @@ def add_client(request):
     return response_json_str
 
 
-def remove_client(request):
+def remove_client(request) -> str:
     global tcp_port
     global global_lock
     global rtp_server_socket
@@ -200,7 +200,7 @@ def remove_client(request):
 # Removes inactive processes and their sockets
 # Processes get inactive when client disconnects
 # without http request
-def manage_processes():
+def manage_processes() -> None:
     global processes
     global terminate_proc_manager
 
@@ -223,7 +223,7 @@ def manage_processes():
     return
 
 
-def start_manager_thread():
+def start_manager_thread() -> None:
     global manager_thread
 
     manager_thread = Thread(target=manage_processes)
