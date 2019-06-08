@@ -1,0 +1,48 @@
+import database
+from pathlib import Path
+import json
+import platform
+import psutil
+
+
+def create_json_client(login: str, content: str) -> str:
+    result = {
+        'type': 'Client',
+        'login': login,
+        'content': content
+    }
+    return json.dumps(result)
+
+
+def create_json(log_type: str, content: str) -> str:
+    result = {
+        'type': log_type,
+        'content': content
+    }
+    return json.dumps(result)
+
+
+def server() -> int:
+    sid = database.server_max_id() + 1
+
+    if 'serverId' not in database.config_json:
+        database.config_json['serverId'] = sid
+        data_str = json.dumps(database.config_json, indent=1)
+        Path('config.json').write_text(data_str)
+
+    uname: platform.uname_result = platform.uname()
+    info = {
+        's_id': sid,
+        'os': str(uname.system),
+        'os_ver': str(uname.version),
+        'p_ver': str(platform.python_version()),
+        'n_name': str(uname.node),
+        'cpu': str(uname.processor),
+        'ram_size': int(psutil.virtual_memory().total / 1000000)
+    }
+    database.server_insert(info)
+    return sid
+
+
+def log(content: str) -> None:
+    database.entries_insert(content)

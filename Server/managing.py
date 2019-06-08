@@ -7,6 +7,10 @@ from Vac import Vac
 import cv2
 import numpy as np
 import json
+import database
+import logger
+
+server_id: int = None
 
 # TCP port assigned to client
 # increases with every successful connect request
@@ -158,6 +162,10 @@ def add_client(request) -> str:
     processes[str(request.remote_addr)] = proc
     proc.start()
     global_lock.release()
+
+    data = json.loads(request.data)
+    logger.log(logger.create_json_client(data['login'], 'Connected'))
+
     # End critical section
 
     # Building response
@@ -190,6 +198,9 @@ def remove_client(request) -> str:
         client_json_str: str = json.dumps(client_json)
         rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
         rtp_server_socket.send(client_json_str.encode())
+
+        data = json.loads(request.data)
+        logger.log(logger.create_json_client(data['login'], 'Disconnected'))
 
         print("Client disconnected: " + request.remote_addr)
         return 'disconnect_success'
