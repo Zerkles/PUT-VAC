@@ -7,6 +7,10 @@ from Vac import Vac
 import cv2
 import numpy as np
 import json
+import database
+import logger
+
+server_id: int
 
 # TCP port assigned to client
 # increases with every successful connect request
@@ -17,7 +21,8 @@ tcp_port: int = 55000
 rtp_port: int = 49152
 
 manager_thread: Thread = Thread()
-terminate_proc_manager: bool = False
+performance_log_thread: Thread = Thread()
+server_shutdown: bool = False
 global_lock = Lock()
 
 # Dictionaries
@@ -30,12 +35,12 @@ rtp_server_socket = socket(AF_INET, SOCK_STREAM)
 
 # To be used on app exit
 def cleanup() -> None:
-    global terminate_proc_manager
+    global manager_thread
+    global performance_log_thread
     global client_sockets
     global processes
 
     print('Cleanup')
-    terminate_proc_manager = True
     proc_num = 1
     sock_num = 1
     for sock in client_sockets.values():
@@ -47,7 +52,9 @@ def cleanup() -> None:
         proc_num += 1
         proc.terminate()
         proc.join()
+
     manager_thread.join()
+    performance_log_thread.join()
     print('Cleaned up!')
     time.sleep(1)
     return
@@ -88,11 +95,13 @@ def receive_data(conn, recv_size: int, converter: Vac):
 
 
 # Listen function for process
-def proc_listen(client_socket, streamer_tcp_port) -> None:
+def proc_listen(client_socket, streamer_tcp_port, s_id: int) -> None:
     rtp_socket = socket(AF_INET, SOCK_STREAM)
     rtp_socket.connect(("127.0.0.1", streamer_tcp_port))
 
     converter = Vac(rtp_socket)
+
+    total_size: float = 0
 
     conn, address = client_socket.accept()
     print('Client connected!')
@@ -105,15 +114,15 @@ def proc_listen(client_socket, streamer_tcp_port) -> None:
                 break
             try:
                 recv_size = int.from_bytes(recv_data, "big")
-                # print(str('Size: ' + str(recv_size)))
+                total_size += recv_size / 1000000
                 msg, img = receive_data(conn, recv_size, converter)
 
                 if msg == TypeError:
                     continue
                 elif msg == 'disconnected':
                     print('Client disconnected!')
+                    logger.statistic(s_id, 'Data received', str(int(total_size)))
                     return
-                # print(str(datetime.datetime.now()))
             except ValueError:
                 print("------------------------")
                 print("Not int!")
@@ -123,7 +132,7 @@ def proc_listen(client_socket, streamer_tcp_port) -> None:
                 print("------------------------")
         except OSError:
             pass
-    cv2.destroyAllWindows()
+    logger.statistic(s_id, 'Data received', str(int(total_size)))
 
 
 def add_client(request) -> str:
@@ -131,40 +140,55 @@ def add_client(request) -> str:
     global rtp_port
     global global_lock
 
-    client_tcp_port = tcp_port
-    client_rtp_port = rtp_port
-    tcp_port += 1
-    rtp_port += 4
+    payload = json.loads(request.data)
 
-    sock = socket(AF_INET, SOCK_STREAM)
-    client_sockets[str(request.remote_addr)] = sock
-    client_sockets[str(request.remote_addr)].bind(('', client_tcp_port))
-    client_sockets[str(request.remote_addr)].listen(1)
+    if database.user_validate(payload['user'], payload['passwd']):
+        client_tcp_port = tcp_port
+        client_rtp_port = rtp_port
+        tcp_port += 1
+        rtp_port += 4
 
-    # Sending client information to RTP streamer
-    client_addr: str = request.remote_addr
-    client_json = {'address': client_addr, 'rtp_port': client_rtp_port}
-    client_json_str: str = json.dumps(client_json)
-    rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
-    rtp_server_socket.send(client_json_str.encode())
-    print("Client info: " + client_json_str)
+        sock = socket(AF_INET, SOCK_STREAM)
+        client_sockets[str(request.remote_addr)] = sock
+        client_sockets[str(request.remote_addr)].bind(('', client_tcp_port))
+        client_sockets[str(request.remote_addr)].listen(1)
 
-    recv_data = rtp_server_socket.recv(4)
-    streamer_tcp_port = int.from_bytes(recv_data, "big")
+        # Sending client information to RTP streamer
+        client_addr: str = request.remote_addr
+        client_json = {'address': client_addr, 'rtp_port': client_rtp_port}
+        client_json_str: str = json.dumps(client_json)
+        rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
+        rtp_server_socket.send(client_json_str.encode())
+        print("Client info: " + client_json_str)
 
-    # Critical section
-    global_lock.acquire()
-    proc = Process(target=proc_listen, args=(sock, streamer_tcp_port,))
-    processes[str(request.remote_addr)] = proc
-    proc.start()
-    global_lock.release()
-    # End critical section
+        recv_data = rtp_server_socket.recv(4)
+        streamer_tcp_port = int.from_bytes(recv_data, "big")
 
-    # Building response
-    response_json = {'tcp_port': client_tcp_port, 'rtp_port': client_rtp_port}
-    response_json_str = json.dumps(response_json)
-    print("Response: " + response_json_str)
-    return response_json_str
+        # Critical section
+        global_lock.acquire()
+
+        # Acquire UserID and SessionID
+        u_id: int = database.user_get_id(payload['login'])
+        s_id: int = database.session_max_id()
+        database.session_insert(s_id, u_id, server_id)
+
+        proc = Process(target=proc_listen, args=(sock, streamer_tcp_port, s_id))
+        processes[str(request.remote_addr)] = proc
+        proc.start()
+        global_lock.release()
+
+        data = json.loads(request.data)
+        logger.log_entry('Client', 'Connected', logger.create_json(data['login']))
+        # End critical section
+
+        # Building response
+        response_json = {'tcp_port': client_tcp_port, 'rtp_port': client_rtp_port}
+        response_json_str = json.dumps(response_json)
+        print("Response: " + response_json_str)
+        return response_json_str
+
+    else:
+        return 'incorrect credentials'
 
 
 def remove_client(request) -> str:
@@ -191,20 +215,25 @@ def remove_client(request) -> str:
         rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
         rtp_server_socket.send(client_json_str.encode())
 
-        print("Client disconnected: " + request.remote_addr)
-        return 'disconnect_success'
-    else:
-        return 'not_connected'
+        data = json.loads(request.data)
+        logger.log_entry('Client', 'Connected', logger.create_json(data['login']))
 
+        print("Client disconnected: " + request.remote_addr)
+        return 'disconnect success'
+    else:
+        return 'not connected'
+
+
+# Threads
 
 # Removes inactive processes and their sockets
 # Processes get inactive when client disconnects
 # without http request
 def manage_processes() -> None:
     global processes
-    global terminate_proc_manager
+    global server_shutdown
 
-    while not terminate_proc_manager:
+    while not server_shutdown:
         if len(processes) > 0:
             while True:
                 changed = False
@@ -223,8 +252,24 @@ def manage_processes() -> None:
     return
 
 
+def performance_log() -> None:
+    global server_shutdown
+
+    while not server_shutdown:
+        logger.performance()
+        time.sleep(15)
+        pass
+
+
 def start_manager_thread() -> None:
     global manager_thread
 
     manager_thread = Thread(target=manage_processes)
     manager_thread.start()
+
+
+def start_performance_log_thread() -> None:
+    global performance_log_thread
+
+    performance_log_thread = Thread(target=performance_log)
+    performance_log_thread.start()
