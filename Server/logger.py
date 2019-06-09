@@ -4,21 +4,19 @@ import json
 import platform
 import psutil
 
+server_id: int
+
 
 def create_json_client(login: str, content: str) -> str:
     result = {
-        'type': 'Client',
         'login': login,
         'content': content
     }
     return json.dumps(result)
 
 
-def create_json(log_type: str, content: str) -> str:
-    result = {
-        'type': log_type,
-        'content': content
-    }
+def create_json(content: str) -> str:
+    result = {'content': content}
     return json.dumps(result)
 
 
@@ -44,5 +42,23 @@ def server() -> int:
     return sid
 
 
-def log(content: str) -> None:
-    database.entries_insert(content)
+def log(entry_type: str, event: str, content: str) -> None:
+    database.entries_insert(entry_type, event, content)
+
+
+def performance():
+    global server_id
+
+    ram_usage = int(psutil.virtual_memory().used / 1000000)
+    ram_percent = int(psutil.virtual_memory().percent)
+    cpu_percent = 0.0
+    while cpu_percent == 0.0:
+        cpu_percent = psutil.cpu_percent(interval=0.05)
+
+    perf_json: dict = {
+        'ram_MB': ram_usage,
+        'ram_%': ram_percent,
+        'cpu_%': cpu_percent
+    }
+
+    log('Server', 'Performance', json.dumps(perf_json))

@@ -52,16 +52,14 @@ def manager():
 
 @app.route('/VAC/shutdown', methods=['GET'])
 def shutdown():
-    global stop_all
-
-    stop_all = True
+    managing.server_shutdown = True
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
 
     print("Server shutting down...")
-    logger.log(logger.create_json('Server', 'Shutdown'))
+    logger.log('Server', 'Shutdown', '')
     return '<p>Server shutting down...</p>', 200
 
 
@@ -70,7 +68,7 @@ def shutdown():
 @app.route('/VAC/db/test/', methods=['GET'])
 def db_test():
     table: dict = database.test_get()
-    logger.log(logger.create_json('Server', 'Db test request'))
+    logger.log('Server', 'Database', logger.create_json('Db test request'))
     return response_json(table)
 
 
@@ -92,12 +90,12 @@ def db_user():
 def db_statistics():
     payload = json.loads(request.data)
     login: str = payload['login']
-    type: str = payload['type']
-    if type == 'data_amount':
+    s_type: str = payload['type']
+    if s_type == 'data_amount':
         pass
-    elif type == 'session_time':
+    elif s_type == 'session_time':
         pass
-    elif type == 'login_history':
+    elif s_type == 'login_history':
         pass
     return '{"0": "TODO"}'
 
@@ -110,7 +108,8 @@ def main():
         conn.close()
         server_id = logger.server()
         managing.server_id = server_id
-        logger.log(logger.create_json('Server', 'Started'))
+        logger.server_id = server_id
+        logger.log('Server', 'Started', '')
     except Exception:
         print('Could not connect to database')
         return
@@ -127,10 +126,11 @@ def main():
             break
 
     managing.start_manager_thread()
+    managing.start_performance_log_thread()
 
     app.run(
         host='0.0.0.0',
-        port=int(80),
+        port=80,
         threaded=True,
         debug=False
     )

@@ -10,7 +10,7 @@ import json
 import database
 import logger
 
-server_id: int = None
+server_id: int
 
 # TCP port assigned to client
 # increases with every successful connect request
@@ -21,7 +21,8 @@ tcp_port: int = 55000
 rtp_port: int = 49152
 
 manager_thread: Thread = Thread()
-terminate_proc_manager: bool = False
+performance_log_thread: Thread = Thread()
+server_shutdown: bool = False
 global_lock = Lock()
 
 # Dictionaries
@@ -34,12 +35,12 @@ rtp_server_socket = socket(AF_INET, SOCK_STREAM)
 
 # To be used on app exit
 def cleanup() -> None:
-    global terminate_proc_manager
+    global manager_thread
+    global performance_log_thread
     global client_sockets
     global processes
 
     print('Cleanup')
-    terminate_proc_manager = True
     proc_num = 1
     sock_num = 1
     for sock in client_sockets.values():
@@ -51,7 +52,9 @@ def cleanup() -> None:
         proc_num += 1
         proc.terminate()
         proc.join()
+
     manager_thread.join()
+    performance_log_thread.join()
     print('Cleaned up!')
     time.sleep(1)
     return
@@ -164,7 +167,7 @@ def add_client(request) -> str:
     global_lock.release()
 
     data = json.loads(request.data)
-    logger.log(logger.create_json_client(data['login'], 'Connected'))
+    logger.log('Client', 'Connected', logger.create_json(data['login']))
 
     # End critical section
 
@@ -200,7 +203,7 @@ def remove_client(request) -> str:
         rtp_server_socket.send(client_json_str.encode())
 
         data = json.loads(request.data)
-        logger.log(logger.create_json_client(data['login'], 'Disconnected'))
+        logger.log('Client', 'Connected', logger.create_json(data['login']))
 
         print("Client disconnected: " + request.remote_addr)
         return 'disconnect_success'
@@ -213,9 +216,9 @@ def remove_client(request) -> str:
 # without http request
 def manage_processes() -> None:
     global processes
-    global terminate_proc_manager
+    global server_shutdown
 
-    while not terminate_proc_manager:
+    while not server_shutdown:
         if len(processes) > 0:
             while True:
                 changed = False
@@ -234,8 +237,24 @@ def manage_processes() -> None:
     return
 
 
+def performance_log() -> None:
+    global server_shutdown
+
+    while not server_shutdown:
+        logger.performance()
+        time.sleep(15)
+        pass
+
+
 def start_manager_thread() -> None:
     global manager_thread
 
     manager_thread = Thread(target=manage_processes)
     manager_thread.start()
+
+
+def start_performance_log_thread() -> None:
+    global performance_log_thread
+
+    performance_log_thread = Thread(target=performance_log)
+    performance_log_thread.start()
