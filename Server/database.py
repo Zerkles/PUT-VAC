@@ -97,9 +97,9 @@ def user_insert(login: str, passwd: str) -> bool:
     if user_exists(login):
         return False
 
-    uid = str(int(user_max_id()) + 1)
+    u_id = str(int(user_max_id()) + 1)
 
-    sql_query = 'insert into Users values (' + uid + ',\'' + login + '\',\'' + passwd + '\');'
+    sql_query = 'insert into Users values (' + u_id + ',\'' + login + '\',\'' + passwd + '\');'
     query_non_return(sql_query)
 
     return True
@@ -132,6 +132,23 @@ def user_exists(login: str) -> bool:
     return result
 
 
+def user_get_id(login: str) -> int:
+    sql_query = 'select * from Users where Login=' + login
+    result = select_one_value(sql_query)
+    if result == 'None':
+        result = '0'
+    return int(result)
+
+
+def user_validate(login: str, passwd: str) -> bool:
+    sql_query = 'select * from Users where Login=' + login + ' and Password=' + passwd
+    result = select_one_value(sql_query)
+    if result == 'None':
+        return False
+    else:
+        return True
+
+
 # Entries
 
 def entries_max_id() -> int:
@@ -148,9 +165,35 @@ def entries_insert(entry_type: str, event: str, content: str) -> None:
     else:
         content = '\'' + content + '\''
 
-    eid = str(entries_max_id() + 1)
+    e_id = str(entries_max_id() + 1)
 
     date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
     sql_query = 'insert into Entries values' + \
-                '(' + eid + ',\'' + entry_type + '\',\'' + event + '\',' + content + ',' + date + ')'
+                '(' + e_id + ',\'' + entry_type + '\',\'' + event + '\',' + content + ',' + date + ')'
+    query_non_return(sql_query)
+
+
+# Statistics
+
+def statistics_insert(s_id: str, name: str, val: str) -> None:
+    date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
+    sql_query = 'insert into [Statistics] values' + \
+                '(' + s_id + ',\'' + name + '\',\'' + val + '\',' + date + ')'
+    query_non_return(sql_query)
+
+
+# Sessions
+
+def session_max_id() -> int:
+    sql_query = 'select max(SessionID) from Sessions;'
+    result = select_one_value(sql_query)
+    if result == 'None':
+        result = '0'
+    return int(result)
+
+
+def session_insert(s_id: int, u_id: int, ser_id: int) -> None:
+    date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
+    sql_query = 'insert into Sessions values' + \
+                '(' + str(s_id) + ',' + str(u_id) + ',' + str(ser_id) + ',' + date + ')'
     query_non_return(sql_query)

@@ -31,7 +31,10 @@ def response_json(data: dict) -> Response:
 @app.route('/VAC/connect', methods=['GET'])
 def connect():
     response: str = managing.add_client(request)
-    return response, 200
+    if response == 'incorrect credentials':
+        return 401
+    else:
+        return response, 200
 
 
 @app.route('/VAC/disconnect', methods=['GET'])
@@ -59,7 +62,7 @@ def shutdown():
     func()
 
     print("Server shutting down...")
-    logger.log('Server', 'Shutdown', '')
+    logger.log_entry('Server', 'Shutdown', '')
     return '<p>Server shutting down...</p>', 200
 
 
@@ -68,7 +71,7 @@ def shutdown():
 @app.route('/VAC/db/test/', methods=['GET'])
 def db_test():
     table: dict = database.test_get()
-    logger.log('Server', 'Database', logger.create_json('Db test request'))
+    logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
     return response_json(table)
 
 
@@ -109,7 +112,7 @@ def main():
         server_id = logger.server()
         managing.server_id = server_id
         logger.server_id = server_id
-        logger.log('Server', 'Started', '')
+        logger.log_entry('Server', 'Started', '')
     except Exception:
         print('Could not connect to database')
         return

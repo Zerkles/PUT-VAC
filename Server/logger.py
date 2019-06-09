@@ -42,11 +42,11 @@ def server() -> int:
     return sid
 
 
-def log(entry_type: str, event: str, content: str) -> None:
+def log_entry(entry_type: str, event: str, content: str) -> None:
     database.entries_insert(entry_type, event, content)
 
 
-def performance():
+def performance() -> None:
     global server_id
 
     ram_usage = int(psutil.virtual_memory().used / 1000000)
@@ -61,4 +61,8 @@ def performance():
         'cpu_%': cpu_percent
     }
 
-    log('Server', 'Performance', json.dumps(perf_json))
+    log_entry('Server', 'Performance', json.dumps(perf_json))
+
+
+def statistic(s_id: int, name: str, val: str) -> None:
+    database.statistics_insert(str(s_id), name, val)
