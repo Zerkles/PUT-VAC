@@ -30,7 +30,7 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_menu);
 
         btn_connect = findViewById(R.id.btn_connect);
         btn_disconnect = findViewById(R.id.btn_disconnect);

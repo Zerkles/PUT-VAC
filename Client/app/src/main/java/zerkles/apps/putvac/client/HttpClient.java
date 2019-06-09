@@ -36,6 +36,7 @@ class HttpClient {
         }
         return result;
     }
+
     static String sendRequest(String method, String serverAddr, String route, JSONObject content) {
         String result = null;
 
@@ -57,9 +58,8 @@ class HttpClient {
 
                 // Tutaj odczyt odpowiedzi
                 result = in.readLine();
-            }
-            else{
-                result=String.valueOf(responseCode);
+            } else {
+                result = String.valueOf(responseCode);
             }
         } catch (Exception e) {
             Log.d("httpClient_sendRequest", e.toString());

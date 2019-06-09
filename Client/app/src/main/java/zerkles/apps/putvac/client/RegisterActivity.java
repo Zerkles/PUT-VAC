@@ -14,7 +14,7 @@ import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
     Button btn_register;
-    EditText ed_login,ed_password,ed_passwordR;
+    EditText ed_login, ed_password, ed_passwordR;
 
 
     @Override
@@ -30,14 +30,29 @@ public class RegisterActivity extends AppCompatActivity {
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ed_password.getText().equals(ed_passwordR.getText())){
-                    new RegisterTask().execute(ed_login.getText().toString(),ed_password.getText().toString());
-                }
-                else{
-                    Toast.makeText(RegisterActivity.this, "Passwords are not equal!", Toast.LENGTH_SHORT).show();
+                if (!getLogin().isEmpty() && !getPassword().isEmpty() && !getPasswordR().isEmpty()) {
+                    if (getPassword().equals(getPasswordR())) {
+                        new RegisterTask().execute(getLogin(), getPassword());
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Passwords are not equal!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Please fill all gapes correctly!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    String getLogin() {
+        return ed_login.getText().toString();
+    }
+
+    String getPassword() {
+        return ed_password.getText().toString();
+    }
+
+    String getPasswordR() {
+        return ed_passwordR.getText().toString();
     }
 
     public class RegisterTask extends AsyncTask<String, String, String> {
@@ -54,12 +69,11 @@ public class RegisterActivity extends AppCompatActivity {
 
             String response = HttpClient.sendRequest("POST", LoginActivity.getIP(), "/VAC/db/Users/", passy);
 
-            if(response.equals("201")){
+            if (response.equals("201")) {
                 Toast.makeText(RegisterActivity.this, "Added new user!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
-            }
-            else if(response.equals("400")){
+            } else if (response.equals("400")) {
                 Toast.makeText(RegisterActivity.this, "User already exist!", Toast.LENGTH_SHORT).show();
             }
 

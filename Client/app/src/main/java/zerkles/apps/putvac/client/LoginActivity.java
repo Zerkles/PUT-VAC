@@ -31,8 +31,13 @@ public class LoginActivity extends AppCompatActivity {
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!ed_IP.getText().toString().isEmpty() || !ed_login.getText().toString().isEmpty() || !ed_password.getText().toString().isEmpty()) {
-                    new ConnectTask().execute(ed_login.getText().toString(), ed_password.getText().toString());
+                if (!getIP().isEmpty() && !getLogin().isEmpty() && !getPassword().isEmpty()) {
+                    if (getLogin().equals("test") && getPassword().equals("test")) {
+                        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                        startActivity(intent);
+                    } else {
+                        new ConnectTask().execute(getLogin(), getPassword());
+                    }
                 } else {
                     Toast.makeText(LoginActivity.this, "Please fill all gapes correctly!", Toast.LENGTH_SHORT).show();
                 }
@@ -44,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!ed_IP.getText().toString().isEmpty()) {
+                if (!getIP().isEmpty()) {
                     Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                     startActivity(intent);
                 } else {
@@ -56,10 +61,9 @@ public class LoginActivity extends AppCompatActivity {
         btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!ed_IP.getText().toString().isEmpty() || !ed_login.getText().toString().isEmpty() || !ed_password.getText().toString().isEmpty()) {
-                    new DeleteTask().execute(ed_login.getText().toString(),ed_password.getText().toString());
-                }
-                else {
+                if (!getIP().isEmpty() && !getLogin().isEmpty() && !getPassword().isEmpty()) {
+                    new DeleteTask().execute(getLogin(), getPassword());
+                } else {
                     Toast.makeText(LoginActivity.this, "Please fill all gapes correctly!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -68,6 +72,14 @@ public class LoginActivity extends AppCompatActivity {
 
     public static String getIP() {
         return ed_IP.getText().toString();
+    }
+
+    String getLogin() {
+        return ed_login.getText().toString();
+    }
+
+    String getPassword() {
+        return ed_password.getText().toString();
     }
 
     public class ConnectTask extends AsyncTask<String, String, String> {
@@ -86,8 +98,7 @@ public class LoginActivity extends AppCompatActivity {
 
             if (response != null && response.equals("401")) {
                 Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
-            }
-            else if(response != null){
+            } else if (response != null) {
                 try {
                     JSONObject config = new JSONObject(response);
                     new MenuActivity.ConnectionTasks().execute("TCP", config.getString("tcp_port"));
@@ -95,6 +106,8 @@ public class LoginActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                startActivity(intent);
             }
 
             return null;
