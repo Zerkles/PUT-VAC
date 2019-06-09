@@ -219,9 +219,9 @@ def remove_client(request) -> str:
         logger.log_entry('Client', 'Connected', logger.create_json(data['login']))
 
         print("Client disconnected: " + request.remote_addr)
-        return 'disconnect_success'
+        return 'disconnect success'
     else:
-        return 'not_connected'
+        return 'not connected'
 
 
 # Threads

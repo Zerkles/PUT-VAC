@@ -40,7 +40,10 @@ def connect():
 @app.route('/VAC/disconnect', methods=['GET'])
 def disconnect():
     response: str = managing.remove_client(request)
-    return response, 200
+    if response == 'disconnect success':
+        return 200
+    else:
+        return 409
 
 
 @app.route('/VAC/')
@@ -85,22 +88,34 @@ def db_user():
             return 400
     elif request.method == 'DELETE':
         payload = json.loads(request.data)
-        database.user_delete(payload('login'))
-        return 200
+        login: str = payload['login']
+        password: str = payload['passwd']
+
+        if database.user_validate(login, password):
+            payload = json.loads(request.data)
+            database.user_delete(payload('login'))
+            return 200
+        else:
+            return 401
 
 
 @app.route('/VAC/db/Statistics/', methods=['GET'])
 def db_statistics():
     payload = json.loads(request.data)
     login: str = payload['login']
+    password: str = payload['passwd']
     s_type: str = payload['type']
-    if s_type == 'data_amount':
-        pass
-    elif s_type == 'session_time':
-        pass
-    elif s_type == 'login_history':
-        pass
-    return '{"0": "TODO"}'
+
+    if database.user_validate(login, password):
+        if s_type == 'data_amount':
+            pass
+        elif s_type == 'session_time':
+            pass
+        elif s_type == 'login_history':
+            pass
+        return '{"0": "TODO"}'
+    else:
+        return 401
 
 
 def main():
