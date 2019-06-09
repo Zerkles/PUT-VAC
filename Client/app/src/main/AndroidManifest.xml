@@ -23,7 +23,6 @@
         <activity android:name=".DataBaseActivity" />
         <activity android:name=".CameraActivity" />
         <activity android:name=".MenuActivity" />
-
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

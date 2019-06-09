@@ -17,7 +17,7 @@ import org.json.JSONObject;
 public class DataBaseActivity extends AppCompatActivity {
 
     TextView tv_queryName;
-    LinearLayout MainVerticalLine, ColumnsLine;
+    LinearLayout LinearScrollLayout, LineaerColumnsLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +25,8 @@ public class DataBaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_database);
 
         tv_queryName = findViewById(R.id.tv_queryName);
-        MainVerticalLine = findViewById(R.id.MainVerticalLine);
-        ColumnsLine = findViewById(R.id.ColumnsLine);
+        LinearScrollLayout = findViewById(R.id.MainVerticalLine);
+        LineaerColumnsLayout = findViewById(R.id.ColumnsLine);
         new HTTPTask().execute();
 
         Log.d("OSversion", Build.VERSION.RELEASE);
@@ -45,6 +45,11 @@ public class DataBaseActivity extends AppCompatActivity {
         LinearLayout.LayoutParams row_layout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         TableLayout.LayoutParams cell_layout = new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT, 1f);
 
+        if (LinearScrollLayout.getChildCount() != 0 && LineaerColumnsLayout.getChildCount() != 0) {
+            LinearScrollLayout.removeAllViews();
+            LineaerColumnsLayout.removeAllViews();
+        }
+
         try {
             JSONObject json = new JSONObject(responseHTTP);
             JSONArray row = json.getJSONArray(json.names().getString(0));
@@ -55,7 +60,7 @@ public class DataBaseActivity extends AppCompatActivity {
                 tv_cell.setLayoutParams(cell_layout);
                 tv_cell.setBackground(getDrawable(R.drawable.border));
                 tv_cell.setText(row.getString(j));
-                ColumnsLine.addView(tv_cell);
+                LineaerColumnsLayout.addView(tv_cell);
             }
 
             for (int i = 1; i < json.length(); i++) {
@@ -76,7 +81,7 @@ public class DataBaseActivity extends AppCompatActivity {
                     tv_cell.setText(row.getString(j));
                     line.addView(tv_cell);
                 }
-                MainVerticalLine.addView(line);
+                LinearScrollLayout.addView(line);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -88,7 +93,7 @@ public class DataBaseActivity extends AppCompatActivity {
     public class HTTPTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
-            String response = HttpClient.sendRequest("GET", MenuActivity.getIP(), "/VAC/db/test/");
+            String response = HttpClient.sendRequest("GET", LoginActivity.getIP(), "/VAC/db/Statistics/");
             publishProgress(response);
             return null;
         }

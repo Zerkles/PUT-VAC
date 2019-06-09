@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,18 +24,17 @@ public class MenuActivity extends AppCompatActivity {
 
     static TcpClient tcpClient;
     static RtpClient rtpClient;
-    Button btn_connect, btn_disconnect, btn_camera, btn_sql, btn_tcpTest;
+    Button btn_connect, btn_disconnect, btn_camera, btn_db, btn_tcpTest;
     static TextView tv_tcp, tv_rtp;
-    static String addr_ip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
+        setContentView(R.layout.activity_login);
 
         btn_connect = findViewById(R.id.btn_connect);
         btn_disconnect = findViewById(R.id.btn_disconnect);
-        btn_sql = findViewById(R.id.btn_sql);
+        btn_db = findViewById(R.id.btn_db);
         btn_tcpTest = findViewById(R.id.btn_tcpTest);
         btn_camera = findViewById(R.id.btn_camera);
 
@@ -43,31 +43,38 @@ public class MenuActivity extends AppCompatActivity {
 
         checkPermissions();
 
-        btn_sql.setOnClickListener(new View.OnClickListener() {
+        btn_db.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startSqlActivity();
+                Intent intent = new Intent(MenuActivity.this, DataBaseActivity.class);
+                startActivity(intent);
             }
         });
 
         btn_tcpTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startTcpTestActivity();
+                Intent intent = new Intent(MenuActivity.this, TcpTestActivity.class);
+                startActivity(intent);
             }
         });
 
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ConnectionTasks().execute("CONNECT");
+                //new ConnectionTasks().execute("CONNECT");
             }
         });
 
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startCameraActivity();
+                if (tcpClient == null || !tcpClient.getSocket().isConnected() || rtpClient == null) {
+                    Toast.makeText(MenuActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(MenuActivity.this, CameraActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -86,13 +93,6 @@ public class MenuActivity extends AppCompatActivity {
         updateConnectionStatus(tcpClient, rtpClient, tv_rtp, tv_tcp);
     }
 
-
-    // -------- getter methods
-
-    public static String getIP() {
-        return addr_ip;
-    }
-
     // -------- tasks
 
     public static class ConnectionTasks extends AsyncTask<String, String, String> {
@@ -100,20 +100,6 @@ public class MenuActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
 
             switch (strings[0]) {
-                case "CONNECT": {
-                    String response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect");
-
-                    if (response != null) {
-                        try {
-                            JSONObject config = new JSONObject(response);
-                            new ConnectionTasks().execute("TCP", config.getString("tcp_port"));
-                            new ConnectionTasks().execute("RTP", config.getString("rtp_port"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                break;
                 case "TCP": {
                     if (tcpClient != null) {
                         tcpClient.disconnect();
@@ -123,8 +109,8 @@ public class MenuActivity extends AppCompatActivity {
                     tcpClient = new TcpClient();
 
                     String PortTCP_S = strings[1];
-                    if (getIP() != null && PortTCP_S != null) {
-                        tcpClient.SERVER_IP = getIP();
+                    if (LoginActivity.getIP() != null && PortTCP_S != null) {
+                        tcpClient.SERVER_IP = LoginActivity.getIP();
                         tcpClient.SERVER_PORT = Integer.parseInt(PortTCP_S);
                         tcpClient.connect();
                     }
@@ -221,28 +207,6 @@ public class MenuActivity extends AppCompatActivity {
             tv_rtp.setText("RTP Port: " + rtpClient.getPort());
         }
     }
-
-    // -------- activity methods
-
-    public void startCameraActivity() {
-        if (tcpClient == null || !tcpClient.getSocket().isConnected() || rtpClient == null) {
-            Toast.makeText(MenuActivity.this, "Unable to open CameraActivity!", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent intent = new Intent(this, CameraActivity.class);
-            startActivity(intent);
-        }
-    }
-
-    public void startSqlActivity() {
-        Intent intent = new Intent(this, DataBaseActivity.class);
-        startActivity(intent);
-    }
-
-    public void startTcpTestActivity() {
-        Intent intent = new Intent(this, TcpTestActivity.class);
-        startActivity(intent);
-    }
-
 }
 
 
