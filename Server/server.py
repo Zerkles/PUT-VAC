@@ -15,9 +15,10 @@ app = Flask(__name__, template_folder='templates')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-debug: bool = True
+debug: bool = False
 
 server_id: int
+streamer_port: int = 2
 
 
 def response_json(data: dict) -> Response:
@@ -32,7 +33,7 @@ def response_json(data: dict) -> Response:
 def connect():
     response: str = managing.add_client(request)
     if response == 'incorrect credentials':
-        return 401
+        return '', 401
     else:
         return response, 200
 
@@ -41,14 +42,14 @@ def connect():
 def disconnect():
     response: str = managing.remove_client(request)
     if response == 'disconnect success':
-        return 200
+        return '', 200
     else:
-        return 409
+        return '', 409
 
 
 @app.route('/VAC/')
 def test():
-    return "<p>VAC is working!</p>", 200
+    return Response(200, "<p>VAC is working!</p>")
 
 
 @app.route('/VAC/manager', methods=['GET'])
@@ -66,7 +67,7 @@ def shutdown():
 
     print("Server shutting down...")
     logger.log_entry('Server', 'Shutdown', '')
-    return '<p>Server shutting down...</p>', 200
+    return Response(200, '<p>Server shutting down...</p>')
 
 
 # Database routes
@@ -83,9 +84,9 @@ def db_user():
     if request.method == 'POST':
         payload = json.loads(request.data)
         if database.user_insert(payload['login'], payload['passwd']):
-            return 201
+            return '', 201
         else:
-            return 400
+            return '', 400
     elif request.method == 'DELETE':
         payload = json.loads(request.data)
         login: str = payload['login']
@@ -94,17 +95,21 @@ def db_user():
         if database.user_validate(login, password):
             payload = json.loads(request.data)
             database.user_delete(payload('login'))
-            return 200
+            return '', 200
         else:
-            return 401
+            return '', 401
 
 
 @app.route('/VAC/db/Statistics/', methods=['GET'])
 def db_statistics():
     payload = json.loads(request.data)
-    login: str = payload['login']
-    password: str = payload['passwd']
-    s_type: str = payload['type']
+
+    try:
+        login: str = payload['login']
+        password: str = payload['passwd']
+        s_type: str = payload['type']
+    except Exception:
+        return '', 400
 
     if database.user_validate(login, password):
         if s_type == 'data_amount':
@@ -113,13 +118,14 @@ def db_statistics():
             pass
         elif s_type == 'login_history':
             pass
-        return '{"0": "TODO"}'
+        return '{"0": "TODO"}', 200
     else:
-        return 401
+        return '', 401
 
 
 def main():
     global server_id
+    global streamer_port
 
     try:
         conn = database.connect()
@@ -138,7 +144,7 @@ def main():
         print('Waiting for RTP streamer connection . . .')
         while True:
             try:
-                managing.rtp_server_socket.connect(("127.0.0.1", 49152))
+                managing.rtp_server_socket.connect(("127.0.0.1", streamer_port))
             except Exception:
                 continue
             break

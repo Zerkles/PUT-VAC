@@ -20,9 +20,12 @@ def select_one_value(sql_query: str) -> str:
     cursor = conn.cursor()
     cursor.execute(sql_query)
     row = cursor.fetchone()
-    result = str(row[0])
-    conn.close()
-    return result
+    if row is None:
+        return 'None'
+    else:
+        result = str(row[0])
+        conn.close()
+        return result
 
 
 def table_to_dict(cursor) -> dict:
@@ -121,19 +124,20 @@ def user_max_id() -> int:
 def user_exists(login: str) -> bool:
     result: bool = False
     sql_query = 'select \'true\' from Users where Login=\'' + login + '\''
+
     conn = connect()
     cursor = conn.cursor()
     cursor.execute(sql_query)
     row = cursor.fetchone()
+
     if row is not None:
         result = True
-
     conn.close()
     return result
 
 
 def user_get_id(login: str) -> int:
-    sql_query = 'select * from Users where Login=' + login
+    sql_query = 'select * from Users where Login=\'' + login + '\''
     result = select_one_value(sql_query)
     if result == 'None':
         result = '0'
@@ -141,7 +145,7 @@ def user_get_id(login: str) -> int:
 
 
 def user_validate(login: str, passwd: str) -> bool:
-    sql_query = 'select * from Users where Login=' + login + ' and Password=' + passwd
+    sql_query = 'select * from Users where Login=\'' + login + '\' and Password=\'' + passwd + '\''
     result = select_one_value(sql_query)
     if result == 'None':
         return False

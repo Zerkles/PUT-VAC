@@ -140,9 +140,10 @@ def add_client(request) -> str:
     global rtp_port
     global global_lock
 
-    payload = json.loads(request.data)
+    login: str = request.args['login']
+    passwd: str = request.args['passwd']
 
-    if database.user_validate(payload['user'], payload['passwd']):
+    if database.user_validate(login, passwd):
         client_tcp_port = tcp_port
         client_rtp_port = rtp_port
         tcp_port += 1
@@ -168,8 +169,8 @@ def add_client(request) -> str:
         global_lock.acquire()
 
         # Acquire UserID and SessionID
-        u_id: int = database.user_get_id(payload['login'])
-        s_id: int = database.session_max_id()
+        u_id: int = database.user_get_id(login)
+        s_id: int = database.session_max_id() + 1
         database.session_insert(s_id, u_id, server_id)
 
         proc = Process(target=proc_listen, args=(sock, streamer_tcp_port, s_id))
@@ -177,8 +178,7 @@ def add_client(request) -> str:
         proc.start()
         global_lock.release()
 
-        data = json.loads(request.data)
-        logger.log_entry('Client', 'Connected', logger.create_json(data['login']))
+        logger.log_entry('Client', 'Connected', logger.create_json('login'))
         # End critical section
 
         # Building response
