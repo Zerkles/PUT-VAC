@@ -14,6 +14,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static zerkles.apps.putvac.client.LoginActivity.getIP;
+
 public class DataBaseActivity extends AppCompatActivity {
 
     TextView tv_queryName;
@@ -93,7 +95,10 @@ public class DataBaseActivity extends AppCompatActivity {
     public class HTTPTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
-            String response = HttpClient.sendRequest("GET", LoginActivity.getIP(), "/VAC/db/Statistics/");
+            strings[0] = LoginActivity.getLogin();
+            strings[1] = LoginActivity.getPassword();
+
+            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Statistics?login="+strings[0]+"&passwd="+strings[1]+"&type=data_amount");
             publishProgress(response);
             return null;
         }

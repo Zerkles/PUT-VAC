@@ -26,9 +26,10 @@ class HttpClient {
             // Tutaj sprawdzamy czy sukces
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
                 // Tutaj odczyt odpowiedzi
                 result = in.readLine();
+            } else {
+                result = String.valueOf(responseCode);
             }
         } catch (Exception e) {
             Log.d("httpClient_sendRequest", e.toString());

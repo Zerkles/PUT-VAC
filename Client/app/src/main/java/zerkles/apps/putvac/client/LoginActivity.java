@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +12,8 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static java.lang.Thread.sleep;
 
 public class LoginActivity extends AppCompatActivity {
     Button btn_register, btn_login, btn_delete;
@@ -74,11 +77,11 @@ public class LoginActivity extends AppCompatActivity {
         return ed_IP.getText().toString();
     }
 
-    String getLogin() {
+    public static String getLogin() {
         return ed_login.getText().toString();
     }
 
-    String getPassword() {
+    public static String getPassword() {
         return ed_password.getText().toString();
     }
 
@@ -94,20 +97,28 @@ public class LoginActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Users/", passy);
+            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect?login="+strings[0]+"&passwd="+strings[1]);
 
             if (response != null && response.equals("401")) {
-                Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
             } else if (response != null) {
+                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                startActivity(intent);
+
                 try {
+                    sleep(1000);
                     JSONObject config = new JSONObject(response);
                     new MenuActivity.ConnectionTasks().execute("TCP", config.getString("tcp_port"));
                     new MenuActivity.ConnectionTasks().execute("RTP", config.getString("rtp_port"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                startActivity(intent);
+                catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            else{
+                Log.d("Login","HTTP response is null");
             }
 
             return null;
