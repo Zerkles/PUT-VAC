@@ -5,7 +5,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -20,6 +22,7 @@ public class DataBaseActivity extends AppCompatActivity {
 
     TextView tv_queryName;
     LinearLayout LinearScrollLayout, LineaerColumnsLayout;
+    Button btn_loginHistory,btn_sessionHistory,btn_dataAmount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +32,35 @@ public class DataBaseActivity extends AppCompatActivity {
         tv_queryName = findViewById(R.id.tv_queryName);
         LinearScrollLayout = findViewById(R.id.MainVerticalLine);
         LineaerColumnsLayout = findViewById(R.id.ColumnsLine);
-        new HTTPTask().execute();
 
-        Log.d("OSversion", Build.VERSION.RELEASE);
-        Log.d("DeviceName", Build.BRAND + " " + Build.MODEL);
+        btn_loginHistory = findViewById(R.id.btn_loginHistory);
+        btn_sessionHistory= findViewById(R.id.btn_sessionHistory);
+        btn_dataAmount=findViewById(R.id.btn_dataAmount);
+
+        btn_loginHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new HTTPTask().execute("login_history");
+            }
+        });
+
+        btn_sessionHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new HTTPTask().execute("session_history");
+            }
+        });
+
+        btn_dataAmount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new HTTPTask().execute("data_amount");
+            }
+        });
+
+
+
+
 //        JSONArray names =json.names(); /// w kolumnach tylko rozmiar zewn petli moze byc zly
 //
 //        for(int i=0; i<json.length(); i++){
@@ -98,7 +126,10 @@ public class DataBaseActivity extends AppCompatActivity {
             strings[0] = LoginActivity.getLogin();
             strings[1] = LoginActivity.getPassword();
 
-            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Statistics?login="+strings[0]+"&passwd="+strings[1]+"&type=data_amount");
+            String login="login="+LoginActivity.getLogin();
+            String passwd="&passwd="+LoginActivity.getPassword();
+
+            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Statistics?"+login+passwd+"&type="+strings[0]);
             publishProgress(response);
             return null;
         }

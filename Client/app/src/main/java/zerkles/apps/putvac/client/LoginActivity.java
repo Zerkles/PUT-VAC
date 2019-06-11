@@ -2,6 +2,7 @@ package zerkles.apps.putvac.client;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -88,16 +89,21 @@ public class LoginActivity extends AppCompatActivity {
     public class ConnectTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
-            JSONObject passy = new JSONObject();
-            try {
-                passy.put("login", strings[0]);
-                passy.put("passwd", strings[1]);
-            } catch (
-                    JSONException e) {
-                e.printStackTrace();
-            }
+//            JSONObject passy = new JSONObject();
+//            try {
+//                passy.put("login", strings[0]);
+//                passy.put("passwd", strings[1]);
+//            } catch (
+//                    JSONException e) {
+//                e.printStackTrace();
+//            }
 
-            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect?login="+strings[0]+"&passwd="+strings[1]);
+            String login="login="+strings[0],passwd="&passwd="+strings[1];
+            String os="&os="+Build.VERSION.RELEASE,brand="&brand="+Build.BRAND,model="&model="+Build.MODEL;
+            //Log.d("OSversion", Build.VERSION.RELEASE);
+            //Log.d("DeviceName", Build.BRAND + " " + Build.MODEL);
+
+            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect?"+login+passwd+os+brand+model);
 
             if (response != null && response.equals("401")) {
                 //Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
