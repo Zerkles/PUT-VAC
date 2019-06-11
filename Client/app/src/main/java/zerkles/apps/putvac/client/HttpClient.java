@@ -12,8 +12,8 @@ import java.net.URL;
 
 
 class HttpClient {
-    static String sendRequest(String method, String serverAddr, String route) {
-        String result = null;
+    static HttpResponse sendRequest(String method, String serverAddr, String route) {
+        HttpResponse response = new HttpResponse();
 
         try {
             URL url = new URL("http://" + serverAddr + route);
@@ -21,25 +21,24 @@ class HttpClient {
             conn.setRequestMethod(method);
 
             // Tutaj wysyła zapytanie
-            int responseCode = conn.getResponseCode();
+            response.code = conn.getResponseCode();
 
             // Tutaj sprawdzamy czy sukces
-            if (responseCode == HttpURLConnection.HTTP_OK) {
+            if (response.code == HttpURLConnection.HTTP_OK) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
                 // Tutaj odczyt odpowiedzi
-                result = in.readLine();
-            } else {
-                result = String.valueOf(responseCode);
+                response.data = in.readLine();
             }
         } catch (Exception e) {
             Log.d("httpClient_sendRequest", e.toString());
             e.printStackTrace();
         }
-        return result;
+        return response;
     }
 
-    static String sendRequest(String method, String serverAddr, String route, JSONObject content) {
-        String result = null;
+    static HttpResponse sendRequest(String method, String serverAddr, String route, JSONObject content) {
+        HttpResponse response = new HttpResponse();
 
         try {
             URL url = new URL("http://" + serverAddr + route);
@@ -51,22 +50,20 @@ class HttpClient {
             os.close();
 
             // Tutaj wysyła zapytanie
-            int responseCode = conn.getResponseCode();
+            response.code = conn.getResponseCode();
 
             // Tutaj sprawdzamy czy sukces
-            if (responseCode == HttpURLConnection.HTTP_OK) {
+            if (response.code == HttpURLConnection.HTTP_OK) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
                 // Tutaj odczyt odpowiedzi
-                result = in.readLine();
-            } else {
-                result = String.valueOf(responseCode);
+                response.data = in.readLine();
             }
         } catch (Exception e) {
             Log.d("httpClient_sendRequest", e.toString());
             e.printStackTrace();
         }
-        return result;
+        return response;
     }
-
 }
+

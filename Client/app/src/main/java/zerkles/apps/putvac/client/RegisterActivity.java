@@ -67,14 +67,16 @@ public class RegisterActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            String response = HttpClient.sendRequest("POST", LoginActivity.getIP(), "/VAC/db/Users/", passy);
+            HttpResponse response = HttpClient.sendRequest("POST", LoginActivity.getIP(), "/VAC/db/Users/", passy);
 
-            if (response.equals("201")) {
+            if (response.code == 201) {
                 Toast.makeText(RegisterActivity.this, "Added new user!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
-            } else if (response.equals("400")) {
+            } else if (response.code == 400) {
                 Toast.makeText(RegisterActivity.this, "User already exist!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(RegisterActivity.this, "An error occured!", Toast.LENGTH_SHORT).show();
             }
 
             return null;

@@ -22,7 +22,7 @@ public class DataBaseActivity extends AppCompatActivity {
 
     TextView tv_queryName;
     LinearLayout LinearScrollLayout, LineaerColumnsLayout;
-    Button btn_loginHistory,btn_sessionHistory,btn_dataAmount;
+    Button btn_loginHistory, btn_sessionHistory, btn_dataAmount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +34,8 @@ public class DataBaseActivity extends AppCompatActivity {
         LineaerColumnsLayout = findViewById(R.id.ColumnsLine);
 
         btn_loginHistory = findViewById(R.id.btn_loginHistory);
-        btn_sessionHistory= findViewById(R.id.btn_sessionHistory);
-        btn_dataAmount=findViewById(R.id.btn_dataAmount);
+        btn_sessionHistory = findViewById(R.id.btn_sessionHistory);
+        btn_dataAmount = findViewById(R.id.btn_dataAmount);
 
         btn_loginHistory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,8 +60,6 @@ public class DataBaseActivity extends AppCompatActivity {
                 new HTTPTask().execute("data_amount");
             }
         });
-
-
 
 
 //        JSONArray names =json.names(); /// w kolumnach tylko rozmiar zewn petli moze byc zly
@@ -127,11 +125,11 @@ public class DataBaseActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
 
-            String login="login="+LoginActivity.getLogin();
-            String passwd="&passwd="+LoginActivity.getPassword();
+            String login = "login=" + LoginActivity.getLogin();
+            String passwd = "&passwd=" + LoginActivity.getPassword();
 
-            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Statistics?"+login+passwd+"&type="+strings[0]);
-            publishProgress(response);
+            HttpResponse response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Statistics?" + login + passwd + "&type=" + strings[0]);
+            publishProgress(response.data);
             return null;
         }
 

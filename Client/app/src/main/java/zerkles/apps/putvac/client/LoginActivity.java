@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -40,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                         startActivity(intent);
                     } else {
-                        new ConnectTask().execute(getLogin(), getPassword());
+                        new HttpTask().execute("connect");
                     }
                 } else {
                     Toast.makeText(LoginActivity.this, "Please fill all gapes correctly!", Toast.LENGTH_SHORT).show();
@@ -66,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!getIP().isEmpty() && !getLogin().isEmpty() && !getPassword().isEmpty()) {
-                    new DeleteTask().execute(getLogin(), getPassword());
+                    new HttpTask().execute("delete");
                 } else {
                     Toast.makeText(LoginActivity.this, "Please fill all gapes correctly!", Toast.LENGTH_SHORT).show();
                 }
@@ -86,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
         return ed_password.getText().toString();
     }
 
-    public class ConnectTask extends AsyncTask<String, String, String> {
+    public class HttpTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
 //            JSONObject passy = new JSONObject();
@@ -98,58 +99,68 @@ public class LoginActivity extends AppCompatActivity {
 //                e.printStackTrace();
 //            }
 
-            String login="login="+strings[0],passwd="&passwd="+strings[1];
-            String os="&os="+Build.VERSION.RELEASE,brand="&brand="+Build.BRAND,model="&model="+Build.MODEL;
             //Log.d("OSversion", Build.VERSION.RELEASE);
             //Log.d("DeviceName", Build.BRAND + " " + Build.MODEL);
 
-            String response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect?"+login+passwd+os+brand+model);
+            String login = "login=" + getLogin(), passwd = "&passwd=" + getPassword();
+            String os = "os=&Android", os_ver = "&os_ver=" + Build.VERSION.RELEASE, brand = "&brand=" + Build.BRAND, model = "&model=" + Build.MODEL;
 
-            if (response != null && response.equals("401")) {
-                //Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
-            } else if (response != null) {
-                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                startActivity(intent);
+            HttpResponse response;
 
-                try {
-                    sleep(1000);
-                    JSONObject config = new JSONObject(response);
-                    new MenuActivity.ConnectionTasks().execute("TCP", config.getString("tcp_port"));
-                    new MenuActivity.ConnectionTasks().execute("RTP", config.getString("rtp_port"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                catch(InterruptedException e){
-                    e.printStackTrace();
-                }
-            }
-            else{
-                Log.d("Login","HTTP response is null");
+            if (strings[0].equals("connect")) {
+                response = HttpClient.sendRequest("GET", getIP(), "/VAC/connect?" + login + passwd + os + os_ver + brand + model);
+            } else {
+                response = HttpClient.sendRequest("DELETE", getIP(), "/VAC/db/Users?" + login + passwd);
             }
 
+            publishProgress(strings[0], String.valueOf(response.code), response.data);
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            HttpResponse response = new HttpResponse();
+            response.code = Integer.parseInt(values[1]);
+            response.data = values[2];
+            if (values[0].equals("connect")) {
+                connect(response);
+            } else {
+                delete(response);
+            }
+
+
         }
     }
 
-    public class DeleteTask extends AsyncTask<String, String, String> {
-        @Override
-        protected String doInBackground(String... strings) {
-            JSONObject passy = new JSONObject();
+    public void connect(HttpResponse response) {
+        if (response.code == 200) {
             try {
-                passy.put("login", strings[0]);
-                passy.put("passwd", strings[1]);
-            } catch (
-                    JSONException e) {
+                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                startActivity(intent);
+                sleep(1000);
+                JSONObject config = new JSONObject(response.data);
+                new MenuActivity.ConnectionTasks().execute("TCP", config.getString("tcp_port"));
+                new MenuActivity.ConnectionTasks().execute("RTP", config.getString("rtp_port"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        } else if (response.code == 401) {
+            Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(LoginActivity.this, "An error occured!", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-            String response = HttpClient.sendRequest("DELETE", getIP(), "/VAC/db/Users/", passy);
-
-            if (response != null && response.equals("401")) {
-                Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
-            }
-
-            return null;
+    public void delete(HttpResponse response) {
+        if (response.code == 200) {
+            Toast.makeText(LoginActivity.this, "Account deleted!!", Toast.LENGTH_SHORT).show();
+        } else if (response.code == 401) {
+            Toast.makeText(LoginActivity.this, "Authorization failure!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(LoginActivity.this, "An error occured!", Toast.LENGTH_SHORT).show();
         }
     }
 }

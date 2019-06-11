@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoText="false"
-        android:text="Query Title"
+        android:text="Press button to send database query"
         android:textAlignment="center"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -21,9 +21,8 @@
         tools:layout_editor_absoluteY="16dp" />
 
     <LinearLayout
-        android:id="@+id/ColumnsLine"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="horizontal">
 
         <Button
@@ -46,6 +45,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Login History" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ColumnsLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
     </LinearLayout>
 
     <ScrollView
