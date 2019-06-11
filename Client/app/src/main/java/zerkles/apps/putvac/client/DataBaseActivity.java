@@ -40,6 +40,7 @@ public class DataBaseActivity extends AppCompatActivity {
         btn_loginHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                tv_queryName.setText("Login History");
                 new HTTPTask().execute("login_history");
             }
         });
@@ -47,6 +48,7 @@ public class DataBaseActivity extends AppCompatActivity {
         btn_sessionHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                tv_queryName.setText("Session History");
                 new HTTPTask().execute("session_history");
             }
         });
@@ -54,6 +56,7 @@ public class DataBaseActivity extends AppCompatActivity {
         btn_dataAmount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                tv_queryName.setText("Data Amount");
                 new HTTPTask().execute("data_amount");
             }
         });
@@ -123,8 +126,6 @@ public class DataBaseActivity extends AppCompatActivity {
     public class HTTPTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
-            strings[0] = LoginActivity.getLogin();
-            strings[1] = LoginActivity.getPassword();
 
             String login="login="+LoginActivity.getLogin();
             String passwd="&passwd="+LoginActivity.getPassword();
