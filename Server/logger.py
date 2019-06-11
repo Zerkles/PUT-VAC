@@ -21,16 +21,15 @@ def create_json(content: str) -> str:
 
 
 def server() -> int:
-    sid = database.server_max_id() + 1
-
     if 'serverId' not in database.config_json:
+        sid = database.server_max_id() + 1
         database.config_json['serverId'] = sid
         data_str = json.dumps(database.config_json, indent=1)
         Path('config.json').write_text(data_str)
 
     uname: platform.uname_result = platform.uname()
     info = {
-        's_id': sid,
+        's_id': database.config_json['serverId'],
         'os': str(uname.system),
         'os_ver': str(uname.version),
         'p_ver': str(platform.python_version()),
@@ -39,7 +38,7 @@ def server() -> int:
         'ram_size': int(psutil.virtual_memory().total / 1000000)
     }
     database.server_insert(info)
-    return sid
+    return database.config_json['serverId']
 
 
 def log_entry(entry_type: str, event: str, content: str) -> None:

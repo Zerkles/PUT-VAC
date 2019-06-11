@@ -143,7 +143,9 @@ def add_client(request) -> str:
     login: str = request.args['login']
     passwd: str = request.args['passwd']
 
-    if database.user_validate(login, passwd):
+    print(request.args)
+
+    if database.user_authenticate(login, passwd):
         client_tcp_port = tcp_port
         client_rtp_port = rtp_port
         tcp_port += 1
@@ -172,6 +174,7 @@ def add_client(request) -> str:
         u_id: int = database.user_get_id(login)
         s_id: int = database.session_max_id() + 1
         database.session_insert(s_id, u_id, server_id)
+        database.client_insert(request.args)
 
         proc = Process(target=proc_listen, args=(sock, streamer_tcp_port, s_id))
         processes[str(request.remote_addr)] = proc
@@ -215,8 +218,7 @@ def remove_client(request) -> str:
         rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
         rtp_server_socket.send(client_json_str.encode())
 
-        data = json.loads(request.data)
-        logger.log_entry('Client', 'Connected', logger.create_json(data['login']))
+        logger.log_entry('Client', 'Connected', logger.create_json(request.args['login']))
 
         print("Client disconnected: " + request.remote_addr)
         return 'disconnect success'
