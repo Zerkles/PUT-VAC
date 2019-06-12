@@ -21,6 +21,8 @@ public class LoginActivity extends AppCompatActivity {
     Button btn_register, btn_login, btn_delete;
     static EditText ed_IP, ed_login, ed_password;
 
+    static public String rtpPort, tcpPort;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
             //Log.d("DeviceName", Build.BRAND + " " + Build.MODEL);
 
             String login = "login=" + getLogin(), passwd = "&passwd=" + getPassword();
-            String os = "os=&Android", os_ver = "&os_ver=" + Build.VERSION.RELEASE, brand = "&brand=" + Build.BRAND, model = "&model=" + Build.MODEL;
+            String os = "&os=&Android", os_ver = "&os_ver=" + Build.VERSION.RELEASE, brand = "&brand=" + Build.BRAND, model = "&model=" + Build.MODEL;
 
             HttpResponse response;
 
@@ -140,8 +142,8 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
                 sleep(1000);
                 JSONObject config = new JSONObject(response.data);
-                new MenuActivity.ConnectionTasks().execute("TCP", config.getString("tcp_port"));
-                new MenuActivity.ConnectionTasks().execute("RTP", config.getString("rtp_port"));
+                tcpPort=config.getString("tcp_port");
+                rtpPort=config.getString("rtp_port");
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {

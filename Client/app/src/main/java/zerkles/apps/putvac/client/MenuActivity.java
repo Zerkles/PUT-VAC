@@ -43,6 +43,9 @@ public class MenuActivity extends AppCompatActivity {
 
         checkPermissions();
 
+               new MenuActivity.ConnectionTasks().execute("TCP", LoginActivity.tcpPort);
+               new MenuActivity.ConnectionTasks().execute("RTP", LoginActivity.tcpPort);
+
         btn_db.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

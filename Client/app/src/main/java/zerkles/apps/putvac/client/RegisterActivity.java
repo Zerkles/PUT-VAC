@@ -55,6 +55,18 @@ public class RegisterActivity extends AppCompatActivity {
         return ed_passwordR.getText().toString();
     }
 
+
+    void register(HttpResponse response){
+        if (response.code == 201) {
+            Toast.makeText(RegisterActivity.this, "Added new user!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+        } else if (response.code == 400) {
+            Toast.makeText(RegisterActivity.this, "User already exist!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(RegisterActivity.this, "An error occured!", Toast.LENGTH_SHORT).show();
+        }
+    }
     public class RegisterTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
@@ -68,24 +80,17 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             HttpResponse response = HttpClient.sendRequest("POST", LoginActivity.getIP(), "/VAC/db/Users/", passy);
-
-            if (response.code == 201) {
-                Toast.makeText(RegisterActivity.this, "Added new user!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-            } else if (response.code == 400) {
-                Toast.makeText(RegisterActivity.this, "User already exist!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(RegisterActivity.this, "An error occured!", Toast.LENGTH_SHORT).show();
-            }
-
+            publishProgress(String.valueOf(response.code),response.data);
             return null;
         }
 
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            //updateScrollView(values[0]);
+            HttpResponse response = new HttpResponse();
+            response.code=Integer.parseInt(values[0]);
+            response.data=values[1];
+            register(response);
         }
     }
 }

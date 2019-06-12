@@ -29,6 +29,7 @@ class HttpClient {
 
                 // Tutaj odczyt odpowiedzi
                 response.data = in.readLine();
+                Log.d("ODEBRANE",response.data);
             }
         } catch (Exception e) {
             Log.d("httpClient_sendRequest", e.toString());

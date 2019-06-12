@@ -22,7 +22,7 @@ public class DataBaseActivity extends AppCompatActivity {
 
     TextView tv_queryName;
     LinearLayout LinearScrollLayout, LineaerColumnsLayout;
-    Button btn_loginHistory, btn_sessionHistory, btn_dataAmount;
+    Button btn_loginHistory, btn_sessionHistory, btn_dataAmount, btn_test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +36,15 @@ public class DataBaseActivity extends AppCompatActivity {
         btn_loginHistory = findViewById(R.id.btn_loginHistory);
         btn_sessionHistory = findViewById(R.id.btn_sessionHistory);
         btn_dataAmount = findViewById(R.id.btn_dataAmount);
+        btn_test = findViewById(R.id.btn_test);
 
         btn_loginHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 tv_queryName.setText("Login History");
+                tv_queryName.setTextSize(30);
+                LinearScrollLayout.removeAllViews();
+                LineaerColumnsLayout.removeAllViews();
                 new HTTPTask().execute("login_history");
             }
         });
@@ -49,6 +53,9 @@ public class DataBaseActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 tv_queryName.setText("Session History");
+                tv_queryName.setTextSize(30);
+                LinearScrollLayout.removeAllViews();
+                LineaerColumnsLayout.removeAllViews();
                 new HTTPTask().execute("session_history");
             }
         });
@@ -57,19 +64,23 @@ public class DataBaseActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 tv_queryName.setText("Data Amount");
+                tv_queryName.setTextSize(30);
+                LinearScrollLayout.removeAllViews();
+                LineaerColumnsLayout.removeAllViews();
                 new HTTPTask().execute("data_amount");
             }
         });
 
-
-//        JSONArray names =json.names(); /// w kolumnach tylko rozmiar zewn petli moze byc zly
-//
-//        for(int i=0; i<json.length(); i++){
-//            for(int j=0; j<names.length(); j++){
-//                json.get(names[j])[i];
-//            }
-//
-//        }
+        btn_test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tv_queryName.setText("Login History");
+                tv_queryName.setTextSize(30);
+                LinearScrollLayout.removeAllViews();
+                LineaerColumnsLayout.removeAllViews();
+                new HTTPTask().execute("test");
+            }
+        });
     }
 
     private void updateScrollView(String responseHTTP) {
@@ -81,11 +92,13 @@ public class DataBaseActivity extends AppCompatActivity {
             LineaerColumnsLayout.removeAllViews();
         }
 
+        //Log.d("JSON", responseHTTP);
+
         try {
             JSONObject json = new JSONObject(responseHTTP);
             JSONArray row = json.getJSONArray(json.names().getString(0));
             for (int j = 0; j < row.length(); j++) {
-                System.out.print(row.getString(j));
+                //Log.d("columns names",row.getString(j));
 
                 TextView tv_cell = new TextView(this);
                 tv_cell.setLayoutParams(cell_layout);
@@ -96,16 +109,13 @@ public class DataBaseActivity extends AppCompatActivity {
 
             for (int i = 1; i < json.length(); i++) {
                 row = json.getJSONArray(json.names().getString(i));
-
-                System.out.println(json.names());
+                //Log.d("row",row.toString());
 
                 LinearLayout line = new LinearLayout(this); /// horizontal by default
                 line.setLayoutParams(row_layout);
 
 
                 for (int j = 0; j < row.length(); j++) {
-                    System.out.print(row.getString(j));
-
                     TextView tv_cell = new TextView(this);
                     tv_cell.setLayoutParams(cell_layout);
                     tv_cell.setBackground(getDrawable(R.drawable.border));
@@ -124,7 +134,6 @@ public class DataBaseActivity extends AppCompatActivity {
     public class HTTPTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
-
             String login = "login=" + LoginActivity.getLogin();
             String passwd = "&passwd=" + LoginActivity.getPassword();
 
