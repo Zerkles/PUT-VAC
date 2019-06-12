@@ -20,7 +20,9 @@ def select_one_value(sql_query: str) -> str:
     cursor = conn.cursor()
     cursor.execute(sql_query)
     row = cursor.fetchone()
+
     if row is None:
+        conn.close()
         return 'None'
     else:
         result = str(row[0])
@@ -77,20 +79,44 @@ def server_max_id() -> int:
     return int(result)
 
 
-def server_insert(info: dict):
-    v1 = str(info['s_id'])
-    v3 = info['os']
-    v4 = info['os_ver']
-    v5 = info['p_ver']
-    v6 = info['n_name']
-    v7 = info['cpu']
-    v8 = str(info['ram_size'])
+def server_exists(s_id: int):
+    result: bool = False
+    sql_query = 'select \'true\' from Servers where ServerID=' + str(s_id)
 
-    sql_query = 'delete from Servers where ServerID=' + v1 + ';' + \
-                'insert into Servers values ' \
-                '(' + v1 + ',' + v1 + ',\'' + \
-                v3 + '\',\'' + v4 + '\',\'' + v5 + '\',\'' + \
-                v6 + '\',\'' + v7 + '\',' + v8 + ');'
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute(sql_query)
+    row = cursor.fetchone()
+
+    if row is not None:
+        result = True
+    conn.close()
+    return result
+
+
+def server_insert(info: dict):
+    s_id = str(info['s_id'])
+    os = "'" + info['os'] + "'"
+    os_ver = "'" + info['os_ver'] + "'"
+    p_ver = "'" + info['p_ver'] + "'"
+    n_name = "'" + info['n_name'] + "'"
+    cpu = "'" + info['cpu'] + "'"
+    ram_size = str(info['ram_size'])
+
+    sql_quer: str
+
+    if server_exists(int(s_id)):
+        sql_query = 'update Servers set ' \
+                    '[OS Name]=' + os + ',[OS Version]=' + os_ver + ',' + \
+                    '[Python Version]=' + p_ver + ',[Node Name]=' + n_name + ',' + \
+                    'CPU=' + cpu + ',' + '[Memory Size]=' + ram_size + \
+                    'where ServerID=' + s_id
+    else:
+        sql_query = 'insert into Servers values ' \
+                    '(' + s_id + ',' + s_id + ',' + \
+                    os + ',' + os_ver + ',' + p_ver + ',' + \
+                    n_name + ',' + cpu + ',' + ram_size + ');'
+
     query_non_return(sql_query)
 
 
@@ -144,7 +170,7 @@ def user_get_id(login: str) -> int:
     return int(result)
 
 
-def user_validate(login: str, passwd: str) -> bool:
+def user_authenticate(login: str, passwd: str) -> bool:
     sql_query = 'select * from Users where Login=\'' + login + '\' and Password=\'' + passwd + '\''
     result = select_one_value(sql_query)
     if result == 'None':
@@ -200,4 +226,68 @@ def session_insert(s_id: int, u_id: int, ser_id: int) -> None:
     date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
     sql_query = 'insert into Sessions values' + \
                 '(' + str(s_id) + ',' + str(u_id) + ',' + str(ser_id) + ',' + date + ')'
+    print(sql_query)
     query_non_return(sql_query)
+
+
+# Loggers
+
+def loggers_exists(l_id: int) -> bool:
+    sql_query = 'select * from Loggers ' + \
+                'where LoggerID=' + str(l_id)
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute(sql_query)
+    row = cursor.fetchone()
+
+    result: bool = False
+
+    if row is not None:
+        result = True
+    conn.close()
+    return result
+
+
+def loggers_insert(s_id: int):
+    sql_query = 'insert into Loggers values' + \
+                '(' + str(s_id) + ',' + str(s_id) + ')'
+    query_non_return(sql_query)
+
+
+# Clients
+
+def client_difference(info) -> bool:
+    u_id = str(user_get_id(info['login']))
+    os = "'" + info['os'] + "'"
+    os_ver = "'" + info['os_ver'] + "'"
+    brand = "'" + info['brand'] + "'"
+    model = "'" + info['model'] + "'"
+    sql_query = 'select * from Client ' + \
+                'where UserID=' + u_id + ' and [OS Name]=' + os + ' and ' + \
+                '[OS Version]=' + os_ver + ' and [Device Brand]=' + brand + \
+                ' and [Device Model]=' + model
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute(sql_query)
+    row = cursor.fetchone()
+
+    result: bool = True
+
+    if row is not None:
+        result = False
+    conn.close()
+    return result
+
+
+def client_insert(info):
+    if client_difference(info):
+        u_id = str(user_get_id(info['login']))
+        os = "'" + info['os'] + "'"
+        os_ver = "'" + info['os_ver'] + "'"
+        brand = "'" + info['brand'] + "'"
+        model = "'" + info['model'] + "'"
+
+        sql_query = 'insert into Client values' + \
+                    '(' + str(u_id) + ',' + os + ',' + os_ver + ',' + brand + ',' + model + ')'
+        query_non_return(sql_query)
+# mmutableMultiDict([('login', 'jan'), ('passwd', 'jan'), ('os', 'Android'), ('os_ver', '9'), ('brand', 'OnePlus'), ('model', 'ONEPLUS A5000')])

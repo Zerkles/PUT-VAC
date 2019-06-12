@@ -10,6 +10,7 @@ import managing
 import database
 import logger
 
+
 # app init
 app = Flask(__name__, template_folder='templates')
 cors = CORS(app)
@@ -92,7 +93,7 @@ def db_user():
         login: str = payload['login']
         password: str = payload['passwd']
 
-        if database.user_validate(login, password):
+        if database.user_authenticate(login, password):
             payload = json.loads(request.data)
             database.user_delete(payload('login'))
             return '', 200
@@ -102,25 +103,30 @@ def db_user():
 
 @app.route('/VAC/db/Statistics/', methods=['GET'])
 def db_statistics():
-    payload = json.loads(request.data)
-
     try:
-        login: str = payload['login']
-        password: str = payload['passwd']
-        s_type: str = payload['type']
+        login: str = request.args['login']
+        password: str = request.args['passwd']
+        s_type: str = request.args['type']
     except Exception:
         return '', 400
 
-    if database.user_validate(login, password):
+    if database.user_authenticate(login, password):
         if s_type == 'data_amount':
             pass
         elif s_type == 'session_time':
             pass
         elif s_type == 'login_history':
             pass
-        return '{"0": "TODO"}', 200
+        return '{"0": ["TODO"],"1": ["TODO"]}', 200
     else:
         return '', 401
+
+
+@app.route('/VAC/db/Loggers/', methods=['GET'])
+def db_logger():
+    resp: str = ''
+
+    return resp, 200
 
 
 def main():
@@ -128,15 +134,21 @@ def main():
     global streamer_port
 
     try:
+        print('Connecting to database . . ')
         conn = database.connect()
         conn.close()
-        server_id = logger.server()
-        managing.server_id = server_id
-        logger.server_id = server_id
-        logger.log_entry('Server', 'Started', '')
     except Exception:
         print('Could not connect to database')
         return
+
+    server_id = logger.server()
+    managing.server_id = server_id
+    logger.server_id = server_id
+    if not database.loggers_exists(server_id):
+        database.loggers_insert(server_id)
+
+    logger.log_entry('Server', 'Started', '')
+
 
     atexit.register(managing.cleanup)
 
