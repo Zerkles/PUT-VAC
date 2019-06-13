@@ -1,8 +1,7 @@
 import json
 
-from flask import request, Response
+from flask import Flask, Response
 from flask_cors import CORS
-from flask import Flask, render_template
 
 import atexit
 
@@ -10,8 +9,9 @@ import managing
 import database
 import logger
 
-
 # app init
+import request_handling
+
 app = Flask(__name__, template_folder='templates')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -23,7 +23,7 @@ streamer_port: int = 2
 
 
 def response_json(data: dict) -> Response:
-    json_str = json.dumps(data, indent=1)
+    json_str = json.dumps(data)
     response = Response(200)
     response.data = json_str
     response.content_type = 'text/json'
@@ -31,102 +31,41 @@ def response_json(data: dict) -> Response:
 
 
 @app.route('/VAC/connect', methods=['GET'])
-def connect():
-    response: str = managing.add_client(request)
-    if response == 'incorrect credentials':
-        return '', 401
-    else:
-        return response, 200
+def connect(): request_handling.connect()
 
 
 @app.route('/VAC/disconnect', methods=['GET'])
-def disconnect():
-    response: str = managing.remove_client(request)
-    if response == 'disconnect success':
-        return '', 200
-    else:
-        return '', 409
+def disconnect(): request_handling.disconnect()
 
 
 @app.route('/VAC/')
-def test():
-    return Response(200, "<p>VAC is working!</p>")
+def test(): request_handling.test()
 
 
 @app.route('/VAC/manager', methods=['GET'])
-def manager():
-    return render_template('Index.html', name='VAC Server Manager')
+def manager(): request_handling.manager()
 
 
 @app.route('/VAC/shutdown', methods=['GET'])
-def shutdown():
-    managing.server_shutdown = True
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-
-    print("Server shutting down...")
-    logger.log_entry('Server', 'Shutdown', '')
-    return Response(200, '<p>Server shutting down...</p>')
+def shutdown(): request_handling.shutdown()
 
 
 # Database routes
 
 @app.route('/VAC/db/test/', methods=['GET'])
-def db_test():
-    table: dict = database.test_get()
-    logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
-    return response_json(table)
+def db_test(): request_handling.db_test()
 
 
-@app.route('/VAC/db/Users/', methods=['POST', 'DELETE'])
-def db_user():
-    if request.method == 'POST':
-        payload = json.loads(request.data)
-        if database.user_insert(payload['login'], payload['passwd']):
-            return '', 201
-        else:
-            return '', 400
-    elif request.method == 'DELETE':
-        payload = json.loads(request.data)
-        login: str = payload['login']
-        password: str = payload['passwd']
-
-        if database.user_authenticate(login, password):
-            payload = json.loads(request.data)
-            database.user_delete(payload('login'))
-            return '', 200
-        else:
-            return '', 401
+@app.route('/VAC/db/Users', methods=['POST', 'DELETE'])
+def db_user(): request_handling.db_user()
 
 
-@app.route('/VAC/db/Statistics/', methods=['GET'])
-def db_statistics():
-    try:
-        login: str = request.args['login']
-        password: str = request.args['passwd']
-        s_type: str = request.args['type']
-    except Exception:
-        return '', 400
-
-    if database.user_authenticate(login, password):
-        if s_type == 'data_amount':
-            pass
-        elif s_type == 'session_time':
-            pass
-        elif s_type == 'login_history':
-            pass
-        return '{"0": ["TODO"],"1": ["TODO"]}', 200
-    else:
-        return '', 401
+@app.route('/VAC/db/Statistics', methods=['GET'])
+def db_statistics(): request_handling.db_statistics()
 
 
-@app.route('/VAC/db/Loggers/', methods=['GET'])
-def db_logger():
-    resp: str = ''
-
-    return resp, 200
+@app.route('/VAC/db/Loggers', methods=['GET'])
+def db_logger(): request_handling.db_logger()
 
 
 def main():
@@ -148,7 +87,6 @@ def main():
         database.loggers_insert(server_id)
 
     logger.log_entry('Server', 'Started', '')
-
 
     atexit.register(managing.cleanup)
 

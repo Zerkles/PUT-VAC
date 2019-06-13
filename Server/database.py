@@ -103,7 +103,7 @@ def server_insert(info: dict):
     cpu = "'" + info['cpu'] + "'"
     ram_size = str(info['ram_size'])
 
-    sql_quer: str
+    sql_query: str = ''
 
     if server_exists(int(s_id)):
         sql_query = 'update Servers set ' \
@@ -226,7 +226,6 @@ def session_insert(s_id: int, u_id: int, ser_id: int) -> None:
     date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
     sql_query = 'insert into Sessions values' + \
                 '(' + str(s_id) + ',' + str(u_id) + ',' + str(ser_id) + ',' + date + ')'
-    print(sql_query)
     query_non_return(sql_query)
 
 
@@ -290,4 +289,3 @@ def client_insert(info):
         sql_query = 'insert into Client values' + \
                     '(' + str(u_id) + ',' + os + ',' + os_ver + ',' + brand + ',' + model + ')'
         query_non_return(sql_query)
-# mmutableMultiDict([('login', 'jan'), ('passwd', 'jan'), ('os', 'Android'), ('os_ver', '9'), ('brand', 'OnePlus'), ('model', 'ONEPLUS A5000')])
