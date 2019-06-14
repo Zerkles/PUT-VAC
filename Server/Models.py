@@ -2,6 +2,9 @@ from flask_restplus import fields
 
 
 class Models:
+    """
+    Model container class
+    """
     db_table = None
     user_login = None
 

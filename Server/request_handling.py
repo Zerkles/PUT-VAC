@@ -115,6 +115,7 @@ def db_statistics():
         return Response(status=401)
 
 
+# TODO
 def db_logger():
     resp: str = ''
 

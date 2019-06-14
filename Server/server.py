@@ -39,79 +39,105 @@ def output_html(data, code, headers):
     return resp
 
 
-@ns_vac.route('/VAC/connect', endpoint='connect')
+@ns_vac.route('/connect', endpoint='connect')
 @ns_vac.expect(models.user_login)
 @ns_vac.response(200, 'Success')
 @ns_vac.response(401, 'Unauthorized')
 class Connect(Resource):
     def get(self):
+        """
+        Executes connect procedure
+        """
         resp = request_handling.connect()
         return resp
 
 
-@ns_vac.route('/VAC/disconnect', endpoint='disconnect')
+@ns_vac.route('/disconnect', endpoint='disconnect')
 @ns_vac.response(200, 'Success')
 @ns_vac.response(409, 'Not connected')
 class Disconnect(Resource):
     def get(self):
+        """
+        Disconnects connected client
+        """
         resp = request_handling.disconnect()
         return resp
 
 
-@ns_vac.route('/VAC/', endpoint='VAC')
+@ns_vac.route('/', endpoint='VAC')
 @ns_vac.response(200, 'Success')
 class Test(Resource):
+
+    @ns_vac.doc('vac_test')
     def get(self):
+        """
+        Returns text indicating that server is working
+        """
         return request_handling.test()
 
 
-@ns_vac.route('/VAC/manager', endpoint='manager')
+@ns_vac.route('/manager', endpoint='manager')
 @ns_vac.response(200, 'Success')
 class Manager(Resource):
     @ns_vac.doc('get_manager')
     def get(self):
+        """
+        Returns VAC manager site
+        """
         resp = request_handling.manager()
         return resp
 
 
-@ns_vac.route('/VAC/shutdown', endpoint='shutdown')
+@ns_vac.route('/shutdown', endpoint='shutdown')
 @ns_vac.response(200, 'Success')
 class Shutdown(Resource):
     @ns_vac.doc('Shutdown_server')
     def get(self):
+        """
+        Starts server shutdown procedure
+        """
         resp = request_handling.shutdown()
         return resp
 
 
 # Database routes
 
-@ns_db.route('/VAC/db/Test_Table', endpoint='db/Test_table')
+@ns_db.route('/Test_Table', endpoint='db/Test_table')
 @ns_db.response(200, 'Success', models.db_table)
 class DbTest(Resource):
     @ns_db.doc('get_test_table')
     def get(self):
+        """
+        Returns test table from database
+        """
         resp = request_handling.db_test()
         return resp
 
 
-@ns_db.route('/VAC/db/Users', endpoint='db/Users')
+@ns_db.route('/Users', endpoint='db/Users')
 @ns_db.expect(models.user_login)
 class DbUsers(Resource):
     @ns_db.response(201, 'Created')
     @ns_db.response(409, 'User already exists')
     def post(self):
+        """
+        Adds user to database
+        """
         resp = request_handling.db_user_post()
         return resp
 
     @ns_db.response(200, 'Success')
     @ns_db.response(401, 'Unauthorized')
     def delete(self):
+        """
+        Removes user from database
+        """
         resp = request_handling.db_user_delete()
         return resp
         pass
 
 
-@ns_db.route('/VAC/db/Statistics', endpoint='db/Statistics')
+@ns_db.route('/Statistics', endpoint='db/Statistics')
 @ns_db.response(200, 'Success', models.db_table)
 @ns_db.response(400, 'Missing arguments')
 @ns_db.response(401, 'Unauthorized')
@@ -122,11 +148,15 @@ class DbStatistics(Resource):
         'type': 'Type of data to get from table'
     })
     def get(self):
+        """
+        Returns chosen statistics from database
+        """
         resp = request_handling.db_statistics()
         return resp
 
 
-@app.route('/VAC/db/Loggers', methods=['GET'])
+# TODO
+@app.route('/Loggers', methods=['GET'])
 def db_logger():
     return request_handling.db_logger()
 
