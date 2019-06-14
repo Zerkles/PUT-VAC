@@ -28,6 +28,9 @@ no_database: bool = False
 server_id: int
 streamer_port: int = 2
 
+ns_db = api.namespace('VAC/db', description='Operations related to database')
+ns_vac = api.namespace('VAC', description='Operations related to base functionality')
+
 
 @api.representation('text/html')
 def output_html(data, code, headers):
@@ -36,45 +39,45 @@ def output_html(data, code, headers):
     return resp
 
 
-@api.route('/VAC/connect', endpoint='connect')
-@api.expect(models.user_login)
-@api.response(200, 'Success')
-@api.response(401, 'Unauthorized')
+@ns_vac.route('/VAC/connect', endpoint='connect')
+@ns_vac.expect(models.user_login)
+@ns_vac.response(200, 'Success')
+@ns_vac.response(401, 'Unauthorized')
 class Connect(Resource):
     def get(self):
         resp = request_handling.connect()
         return resp
 
 
-@api.route('/VAC/disconnect', endpoint='disconnect')
-@api.response(200, 'Success')
-@api.response(409, 'Not connected')
+@ns_vac.route('/VAC/disconnect', endpoint='disconnect')
+@ns_vac.response(200, 'Success')
+@ns_vac.response(409, 'Not connected')
 class Disconnect(Resource):
     def get(self):
         resp = request_handling.disconnect()
         return resp
 
 
-@api.route('/VAC/', endpoint='VAC')
-@api.response(200, 'Success')
+@ns_vac.route('/VAC/', endpoint='VAC')
+@ns_vac.response(200, 'Success')
 class Test(Resource):
     def get(self):
         return request_handling.test()
 
 
-@api.route('/VAC/manager', endpoint='manager')
-@api.response(200, 'Success')
+@ns_vac.route('/VAC/manager', endpoint='manager')
+@ns_vac.response(200, 'Success')
 class Manager(Resource):
-    @api.doc('get_manager')
+    @ns_vac.doc('get_manager')
     def get(self):
         resp = request_handling.manager()
         return resp
 
 
-@api.route('/VAC/shutdown', endpoint='shutdown')
-@api.response(200, 'Success')
+@ns_vac.route('/VAC/shutdown', endpoint='shutdown')
+@ns_vac.response(200, 'Success')
 class Shutdown(Resource):
-    @api.doc('Shutdown_server')
+    @ns_vac.doc('Shutdown_server')
     def get(self):
         resp = request_handling.shutdown()
         return resp
@@ -82,38 +85,38 @@ class Shutdown(Resource):
 
 # Database routes
 
-@api.route('/VAC/db/Test_Table', endpoint='db/Test_table')
-@api.response(200, 'Success', models.db_table)
+@ns_db.route('/VAC/db/Test_Table', endpoint='db/Test_table')
+@ns_db.response(200, 'Success', models.db_table)
 class DbTest(Resource):
-    @api.doc('get_test_table')
+    @ns_db.doc('get_test_table')
     def get(self):
         resp = request_handling.db_test()
         return resp
 
 
-@api.route('/VAC/db/Users', endpoint='db/Users')
-@api.expect(models.user_login)
+@ns_db.route('/VAC/db/Users', endpoint='db/Users')
+@ns_db.expect(models.user_login)
 class DbUsers(Resource):
-    @api.response(201, 'Created')
-    @api.response(409, 'User already exists')
+    @ns_db.response(201, 'Created')
+    @ns_db.response(409, 'User already exists')
     def post(self):
         resp = request_handling.db_user_post()
         return resp
 
-    @api.response(200, 'Success')
-    @api.response(401, 'Unauthorized')
+    @ns_db.response(200, 'Success')
+    @ns_db.response(401, 'Unauthorized')
     def delete(self):
         resp = request_handling.db_user_delete()
         return resp
         pass
 
 
-@api.route('/VAC/db/Statistics', endpoint='db/Statistics')
-@api.response(200, 'Success', models.db_table)
-@api.response(400, 'Missing arguments')
-@api.response(401, 'Unauthorized')
+@ns_db.route('/VAC/db/Statistics', endpoint='db/Statistics')
+@ns_db.response(200, 'Success', models.db_table)
+@ns_db.response(400, 'Missing arguments')
+@ns_db.response(401, 'Unauthorized')
 class DbStatistics(Resource):
-    @api.doc('get_statistics', params={
+    @ns_db.doc('get_statistics', params={
         'login': 'User login',
         'password': 'User password',
         'type': 'Type of data to get from table'
