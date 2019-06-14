@@ -122,16 +122,11 @@ def server_insert(info: dict):
 
 # Users
 
-def user_insert(login: str, passwd: str) -> bool:
-    if user_exists(login):
-        return False
-
+def user_insert(login: str, passwd: str) -> None:
     u_id = str(int(user_max_id()) + 1)
 
     sql_query = 'insert into Users values (' + u_id + ',\'' + login + '\',\'' + passwd + '\');'
     query_non_return(sql_query)
-
-    return True
 
 
 def user_delete(login: str):

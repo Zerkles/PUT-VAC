@@ -3,6 +3,8 @@ from threading import Thread, Lock
 from socket import socket, AF_INET, SOCK_STREAM
 from typing import Dict
 import time
+
+import server
 from Vac import Vac
 import cv2
 import numpy as np
@@ -54,7 +56,8 @@ def cleanup() -> None:
         proc.join()
 
     manager_thread.join()
-    performance_log_thread.join()
+    if not server.no_database:
+        performance_log_thread.join()
     print('Cleaned up!')
     time.sleep(1)
     return

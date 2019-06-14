@@ -5,38 +5,46 @@ from flask import Response, request, render_template
 import database
 import logger
 import managing
+import server
 
 
-def response_json(data: dict) -> Response:
+def response_json(data: dict, status: int) -> Response:
     json_str = json.dumps(data)
-    response = Response(200)
+    response = Response(status)
     response.data = json_str
     response.content_type = 'text/json'
+    return response
+
+
+def response_html(data: str, status: int) -> Response:
+    response = Response(status)
+    response.data = data
+    response.content_type = 'text/html'
     return response
 
 
 def connect():
     response: str = managing.add_client(request)
     if response == 'incorrect credentials':
-        return '', 401
+        return Response(status=401)
     else:
-        return response, 200
+        return Response(response, status=200)
 
 
 def disconnect():
     response: str = managing.remove_client(request)
     if response == 'disconnect success':
-        return '', 200
+        return Response(status=200)
     else:
-        return '', 409
+        return Response(status=409)
 
 
 def test():
-    return Response(200, "<p>VAC is working!</p>")
+    return response_html("<p>VAC is working!</p>", 200)
 
 
 def manager():
-    return render_template('Index.html', name='VAC Server Manager')
+    return response_html(render_template('Index.html', name='VAC Server Manager'), 200)
 
 
 def shutdown():
@@ -46,37 +54,40 @@ def shutdown():
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
 
-    print("Server shutting down...")
-    logger.log_entry('Server', 'Shutdown', '')
-    return Response(200, '<p>Server shutting down...</p>')
+    print("Server shutting down . . .")
+    if not server.no_database:
+        logger.log_entry('Server', 'Shutdown', '')
+    return Response('<p>Server shutting down...</p>', status=200)
 
 
 # Database routes
 
 def db_test():
     table: dict = database.test_get()
-    logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
-    return response_json(table)
+    if not server.no_database:
+        logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
+    return response_json(table, 200)
 
 
-def db_user():
-    if request.method == 'POST':
-        payload = json.loads(request.data)
-        if database.user_insert(payload['login'], payload['passwd']):
-            return '', 201
-        else:
-            return '', 400
-    elif request.method == 'DELETE':
-        payload = json.loads(request.data)
-        login: str = payload['login']
-        password: str = payload['passwd']
+def db_user_post():
+    payload = json.loads(request.data)
+    if database.user_exists(payload['login']):
+        return Response(status=409)
 
-        if database.user_authenticate(login, password):
-            payload = json.loads(request.data)
-            database.user_delete(payload('login'))
-            return '', 200
-        else:
-            return '', 401
+    database.user_insert(payload['login'], payload['passwd'])
+    return Response(status=201)
+
+
+def db_user_delete():
+    payload = json.loads(request.data)
+    login: str = payload['login']
+    password: str = payload['passwd']
+
+    if database.user_authenticate(login, password):
+        database.user_delete(login)
+        return Response(status=200)
+    else:
+        return Response(status=401)
 
 
 def db_statistics():
@@ -85,7 +96,7 @@ def db_statistics():
         password: str = request.args['passwd']
         s_type: str = request.args['type']
     except Exception:
-        return '', 400
+        return Response(status=400)
 
     if database.user_authenticate(login, password):
         if s_type == 'data_amount':
@@ -96,14 +107,15 @@ def db_statistics():
             pass
         elif s_type == 'test':
             table: dict = database.test_get()
-            logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
-            return response_json(table), 200
-        return '{"0": ["TODO1"],"1": ["TODO2"]}', 200
+            if not server.no_database:
+                logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
+            return response_json(table, 200)
+        return response_json({"0": ["TODO1"], "1": ["TODO2"]}, 200)
     else:
-        return '', 401
+        return Response(status=401)
 
 
 def db_logger():
     resp: str = ''
 
-    return resp, 200
+    return Response(resp, status=200)
