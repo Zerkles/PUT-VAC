@@ -1,7 +1,6 @@
 package zerkles.apps.putvac.client;
 
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -74,7 +73,7 @@ public class DataBaseActivity extends AppCompatActivity {
         btn_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tv_queryName.setText("Login History");
+                tv_queryName.setText("Test");
                 tv_queryName.setTextSize(30);
                 LinearScrollLayout.removeAllViews();
                 LineaerColumnsLayout.removeAllViews();
@@ -136,8 +135,14 @@ public class DataBaseActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             String login = "login=" + LoginActivity.getLogin();
             String passwd = "&passwd=" + LoginActivity.getPassword();
+            HttpResponse response;
 
-            HttpResponse response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Statistics?" + login + passwd + "&type=" + strings[0]);
+            if(!strings[0].equals("test")) {
+                response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Statistics?" + login + passwd + "&type=" + strings[0]);
+            }
+            else{
+                response = HttpClient.sendRequest("GET", getIP(), "/VAC/db/Test_Table");
+            }
             publishProgress(response.data);
             return null;
         }

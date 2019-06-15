@@ -22,6 +22,7 @@ class TcpClient {
      * @param bytes byte sequence entered by client
      */
     void sendBytes(final byte[] bytes) {
+        this.sendInt(bytes.length);
         if (outputStream != null) {
             Log.d("tcpClient_sendBytes", "Sending: bytes");
             try {
@@ -46,13 +47,21 @@ class TcpClient {
      *
      * @param number value entered by client
      */
-    void sendInt(final int number) {
-        this.sendBytes(new byte[]{
+    private void sendInt(final int number) {
+        byte[] data = new byte[]{
                 (byte) ((number >> 24) & 0xff),
                 (byte) ((number >> 16) & 0xff),
                 (byte) ((number >> 8) & 0xff),
                 (byte) (number & 0xff),
-        });
+        };
+        if (outputStream != null) {
+            Log.d("tcpClient_sendInt", "Sending: integer");
+            try {
+                outputStream.write(data);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     void connect() {

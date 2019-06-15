@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,9 +42,6 @@ public class MenuActivity extends AppCompatActivity {
 
         checkPermissions();
 
-               new MenuActivity.ConnectionTasks().execute("TCP", LoginActivity.tcpPort);
-               new MenuActivity.ConnectionTasks().execute("RTP", LoginActivity.tcpPort);
-
         btn_db.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,7 +61,7 @@ public class MenuActivity extends AppCompatActivity {
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //new ConnectionTasks().execute("CONNECT");
+                new ConnectionTasks().execute("CONNECT");
             }
         });
 
@@ -103,6 +99,21 @@ public class MenuActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
 
             switch (strings[0]) {
+                case "CONNECT": {
+                    String login = "login=" + LoginActivity.getLogin(), passwd = "&passwd=" + LoginActivity.getPassword();
+                    HttpResponse response = HttpClient.sendRequest("GET", LoginActivity.getIP(), "/VAC/connect?" + login + passwd);
+
+                    if (response != null) {
+                        try {
+                            JSONObject config = new JSONObject(response.data);
+                            new ConnectionTasks().execute("TCP", config.getString("tcp_port"));
+                            new ConnectionTasks().execute("RTP", config.getString("rtp_port"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                break;
                 case "TCP": {
                     if (tcpClient != null) {
                         tcpClient.disconnect();
@@ -162,7 +173,6 @@ public class MenuActivity extends AppCompatActivity {
         @Override
         protected byte[] doInBackground(String... strings) {
             if (tcpClient != null) {
-                tcpClient.sendInt(strings[0].length());
                 tcpClient.sendString(strings[0]);
             }
             return null;

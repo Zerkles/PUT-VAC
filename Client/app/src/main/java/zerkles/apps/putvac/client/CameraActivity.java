@@ -144,7 +144,6 @@ public class CameraActivity extends AppCompatActivity {
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes, 0, bytes.length);
 
-                        MenuActivity.tcpClient.sendInt(bytes.length);
                         MenuActivity.tcpClient.sendBytes(bytes);
                     } finally {
                         {
@@ -322,7 +321,7 @@ public class CameraActivity extends AppCompatActivity {
         protected byte[] doInBackground(String... strings) {
             while (btn_capture.isChecked()) {
                 takePicture(false);
-                sleep(1000); /// 40-25 kl/s
+                sleep(1000); // 1 fps
             }
             sleep(1000);
             takePicture(true);
