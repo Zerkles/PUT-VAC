@@ -86,6 +86,7 @@ def receive_data(conn, recv_size: int, converter: Vac):
             return TypeError
         except Exception as e:
             print(str(e))
+            break
     array = np.asarray(bytearray(msg), dtype=np.uint8)
     img = cv2.imdecode(buf=array, flags=cv2.IMREAD_COLOR)
 
@@ -104,11 +105,11 @@ def proc_listen(client_socket, streamer_tcp_port, s_id: int) -> None:
 
     converter = Vac(rtp_socket)
 
-    total_size: float = 0
+    total_in_size: float = 0
+    total_out_size: float = 0
 
     conn, address = client_socket.accept()
     print('Client connected!')
-    not_int_size = 0
     while True:
         try:
             recv_data = conn.recv(4)
@@ -117,25 +118,25 @@ def proc_listen(client_socket, streamer_tcp_port, s_id: int) -> None:
                 break
             try:
                 recv_size = int.from_bytes(recv_data, "big")
-                total_size += recv_size / 1000000
-                msg, img = receive_data(conn, recv_size, converter)
+                total_in_size += recv_size / 1000
+                total_out_size += (Vac.duration * Vac.sample_rate * 8) / 1000
+                msg, _ = receive_data(conn, recv_size, converter)
 
                 if msg == TypeError:
                     continue
                 elif msg == 'disconnected':
                     print('Client disconnected!')
-                    logger.statistic(s_id, 'Data received', str(int(total_size)))
+                    logger.log_entry('Client', 'Disonnected', '{"session_id":' + str(s_id) + '}')
+                    logger.statistic(s_id, 'Data received', str(int(total_in_size)))
+                    logger.statistic(s_id, 'Data sent', str(int(total_out_size)))
                     return
             except ValueError:
-                print("------------------------")
                 print("Not int!")
                 print("Received: " + str(recv_data))
-                not_int_size += len(recv_data)
-                print("Size: " + str(not_int_size))
-                print("------------------------")
         except OSError:
             pass
-    logger.statistic(s_id, 'Data received', str(int(total_size)))
+    logger.statistic(s_id, 'Data received', str(int(total_in_size)))
+    logger.statistic(s_id, 'Data sent', str(int(total_out_size)))
 
 
 def add_client(request) -> str:
@@ -177,14 +178,13 @@ def add_client(request) -> str:
         u_id: int = database.user_get_id(login)
         s_id: int = database.session_max_id() + 1
         database.session_insert(s_id, u_id, server_id)
-        database.client_insert(request.args)
 
         proc = Process(target=proc_listen, args=(sock, streamer_tcp_port, s_id))
         processes[str(request.remote_addr)] = proc
         proc.start()
         global_lock.release()
 
-        logger.log_entry('Client', 'Connected', logger.create_json('login'))
+        logger.log_entry('Client', 'Connected', '{ login: "' + login + '"')
         # End critical section
 
         # Building response
@@ -221,7 +221,7 @@ def remove_client(request) -> str:
         rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
         rtp_server_socket.send(client_json_str.encode())
 
-        logger.log_entry('Client', 'Connected', logger.create_json(request.args['login']))
+        logger.log_entry('Client', 'Disconnected', '{ login: "' + request.args['login'] + '"')
 
         print("Client disconnected: " + request.remote_addr)
         return 'disconnect success'
@@ -262,7 +262,7 @@ def performance_log() -> None:
 
     while not server_shutdown:
         logger.performance()
-        time.sleep(15)
+        time.sleep(30)
         pass
 
 

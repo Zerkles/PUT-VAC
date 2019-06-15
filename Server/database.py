@@ -201,10 +201,58 @@ def entries_insert(entry_type: str, event: str, content: str) -> None:
 # Statistics
 
 def statistics_insert(s_id: str, name: str, val: str) -> None:
-    date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
+    date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\''
     sql_query = 'insert into [Statistics] values' + \
                 '(' + s_id + ',\'' + name + '\',\'' + val + '\',' + date + ')'
     query_non_return(sql_query)
+
+
+def statistics_select_data_amount(s_id: int) -> dict:
+    conn = connect()
+    cursor = conn.cursor()
+    sql_query_1: str = 'select [Value], St.Date from [Statistics] St, [Sessions] Se ' + \
+                       'where St.SessionID=Se.SessionID ' + \
+                       "and Name = 'Data received' and UserID=" + str(s_id)
+
+    sql_query_2: str = 'select [Value] from [Statistics] St, [Sessions] Se ' + \
+                       'where St.SessionID=Se.SessionID ' + \
+                       "and Name = 'Data sent' and UserID=" + str(s_id)
+
+    cursor.execute(sql_query_1)
+    data_1: dict = table_to_dict(cursor)
+    cursor.execute(sql_query_2)
+    data_2: dict = table_to_dict(cursor)
+    conn.close()
+    for key in data_1.keys():
+        if key == '0':
+            data_1[key][0] = 'Data sent'
+            data_1[key][1] = 'Data received'
+            data_1[key].append('Date')
+        else:
+            data_1[key][0] = str(data_1[key][0]) + ' KB'
+            data_1[key].append(data_1[key][1].strftime('%Y-%m-%d %H:%M:%S'))
+            data_1[key][1] = str(data_2[key][0]) + ' KB'
+    return data_1
+
+
+def statistics_select_session_history(s_id: int) -> dict:
+    conn = connect()
+    cursor = conn.cursor()
+    sql_query: str = 'select Se.Date, St.Date as Duration from [Statistics] St, [Sessions] Se ' + \
+                     'where St.SessionID=Se.SessionID and UserID=' + str(s_id) + \
+                     ' group by St.SessionID, Se.SessionID, St.Date, Se.Date ' + \
+                     'having St.Date=max(St.Date);'
+
+    cursor.execute(sql_query)
+    data: dict = table_to_dict(cursor)
+    conn.close()
+    for key in data.keys():
+        if key == '0':
+            pass
+        else:
+            data[key][1] = str((data[key][1] - data[key][0]).seconds) + ' s'
+            data[key][0] = data[key][0].strftime('%Y-%m-%d %H:%M:%S')
+    return data
 
 
 # Sessions
@@ -222,6 +270,22 @@ def session_insert(s_id: int, u_id: int, ser_id: int) -> None:
     sql_query = 'insert into Sessions values' + \
                 '(' + str(s_id) + ',' + str(u_id) + ',' + str(ser_id) + ',' + date + ')'
     query_non_return(sql_query)
+
+
+def session_select_login_dates(s_id: int):
+    conn = connect()
+    cursor = conn.cursor()
+    sql_query: str = 'select [Date] from [Sessions] where UserID=' + str(s_id)
+
+    cursor.execute(sql_query)
+    data: dict = table_to_dict(cursor)
+    conn.close()
+    for key in data.keys():
+        if key == '0':
+            data[key][0] = 'Login date'
+        else:
+            data[key][0] = data[key][0].strftime('%Y-%m-%d %H:%M')
+    return data
 
 
 # Loggers
@@ -248,6 +312,10 @@ def loggers_insert(s_id: int):
     query_non_return(sql_query)
 
 
+def loggers_select_connection():
+    pass
+
+
 # Clients
 
 def client_difference(info) -> bool:
@@ -265,10 +333,12 @@ def client_difference(info) -> bool:
     cursor.execute(sql_query)
     row = cursor.fetchone()
 
-    result: bool = True
+    print(sql_query)
 
-    if row is not None:
-        result = False
+    result: bool = False
+
+    if row is None:
+        result = True
     conn.close()
     return result
 
@@ -283,4 +353,5 @@ def client_insert(info):
 
         sql_query = 'insert into Client values' + \
                     '(' + str(u_id) + ',' + os + ',' + os_ver + ',' + brand + ',' + model + ')'
+        print(sql_query)
         query_non_return(sql_query)

@@ -23,6 +23,14 @@ def response_html(data: str, status: int) -> Response:
     return response
 
 
+def login():
+    if database.user_authenticate(request.args['login'], request.args['passwd']):
+        database.client_insert(request.args)
+        return Response(status=200)
+    else:
+        return Response(status=401)
+
+
 def connect():
     response: str = managing.add_client(request)
     if response == 'incorrect credentials':
@@ -99,17 +107,16 @@ def db_statistics():
         return Response(status=400)
 
     if database.user_authenticate(login, password):
+        s_id = database.user_get_id(login)
         if s_type == 'data_amount':
-            pass
-        elif s_type == 'session_time':
-            pass
+            data = database.statistics_select_data_amount(s_id)
+            return Response(json.dumps(data), 200)
+        elif s_type == 'session_history':
+            data = database.statistics_select_session_history(s_id)
+            return Response(json.dumps(data), 200)
         elif s_type == 'login_history':
-            pass
-        elif s_type == 'test':
-            table: dict = database.test_get()
-            if not server.no_database:
-                logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
-            return response_json(table, 200)
+            data = database.session_select_login_dates(s_id)
+            return Response(json.dumps(data), 200)
         return response_json({"0": ["TODO1"], "1": ["TODO2"]}, 200)
     else:
         return Response(status=401)
@@ -117,6 +124,18 @@ def db_statistics():
 
 # TODO
 def db_logger():
-    resp: str = ''
+    try:
+        l_type: str = request.args['type']
+    except Exception:
+        return Response(status=400)
 
-    return Response(resp, status=200)
+    if l_type == 'performance':
+        data = database.statistics_select_data_amount(s_id)
+        return Response(json.dumps(data), 200)
+    elif l_type == 'connection':
+        data = database.statistics_select_session_history(s_id)
+        return Response(json.dumps(data), 200)
+    elif l_type == 'server_activity':
+        data = database.session_select_login_dates(s_id)
+        return Response(json.dumps(data), 200)
+    return response_json({"0": ["TODO1"], "1": ["TODO2"]}, 200)

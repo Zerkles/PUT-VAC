@@ -22,11 +22,11 @@ api = Api(app, version='1.0', title='VAC API',
 
 models: Models = Models(api)
 
-no_streamer: bool = True
+no_streamer: bool = False
 no_database: bool = False
 
 server_id: int
-streamer_port: int = 2
+streamer_port: int = 9999
 
 ns_db = api.namespace('VAC/db', description='Operations related to database')
 ns_vac = api.namespace('VAC', description='Operations related to base functionality')
@@ -39,8 +39,19 @@ def output_html(data, code, headers):
     return resp
 
 
+@ns_vac.route('/login', endpoint='login')
+@ns_vac.response(200, 'Success')
+@ns_vac.response(401, 'Unauthorized')
+class Login(Resource):
+    def get(self):
+        """
+        Authenticates user
+        """
+        resp = request_handling.login()
+        return resp
+
+
 @ns_vac.route('/connect', endpoint='connect')
-@ns_vac.expect(models.user_login)
 @ns_vac.response(200, 'Success')
 @ns_vac.response(401, 'Unauthorized')
 class Connect(Resource):
@@ -102,7 +113,7 @@ class Shutdown(Resource):
 
 # Database routes
 
-@ns_db.route('/Test_Table', endpoint='db/Test_table')
+@ns_db.route('/Test_Table', endpoint='Test_Table')
 @ns_db.response(200, 'Success', models.db_table)
 class DbTest(Resource):
     @ns_db.doc('get_test_table')
@@ -114,7 +125,7 @@ class DbTest(Resource):
         return resp
 
 
-@ns_db.route('/Users', endpoint='db/Users')
+@ns_db.route('/Users', endpoint='Users')
 @ns_db.expect(models.user_login)
 class DbUsers(Resource):
     @ns_db.response(201, 'Created')
@@ -137,14 +148,14 @@ class DbUsers(Resource):
         pass
 
 
-@ns_db.route('/Statistics', endpoint='db/Statistics')
+@ns_db.route('/Statistics', endpoint='Statistics')
 @ns_db.response(200, 'Success', models.db_table)
 @ns_db.response(400, 'Missing arguments')
 @ns_db.response(401, 'Unauthorized')
 class DbStatistics(Resource):
     @ns_db.doc('get_statistics', params={
         'login': 'User login',
-        'password': 'User password',
+        'passwd': 'User password',
         'type': 'Type of data to get from table'
     })
     def get(self):
