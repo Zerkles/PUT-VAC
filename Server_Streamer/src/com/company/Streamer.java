@@ -1,7 +1,5 @@
 package com.company;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 
 public class Streamer implements Runnable {
@@ -29,7 +27,7 @@ public class Streamer implements Runnable {
             server.close();
             Utils.log("Streamer: " + "Server socket closed");
         }
-        if (streamer != null){
+        if (streamer != null) {
             streamer.stop();
             streamer.shutdown();
             Utils.log("Streamer: " + "Streamer stopped");

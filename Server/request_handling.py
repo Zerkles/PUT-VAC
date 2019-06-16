@@ -23,6 +23,28 @@ def response_html(data: str, status: int) -> Response:
     return response
 
 
+def json_to_html(data: dict) -> str:
+    result = '<table>'
+    for key in data.keys():
+        result += '<tr>'
+        if key == '0':
+            for elem in data[key]:
+                result += '<th>'
+                result += elem
+                result += '</th>'
+        else:
+            for elem in data[key]:
+                result += '<td>'
+                if elem is not None:
+                    result += elem
+                else:
+                    result += 'NULL'
+                result += '</td>'
+        result += '</tr>'
+    result += '</table>'
+    return result
+
+
 def login():
     if database.user_authenticate(request.args['login'], request.args['passwd']):
         database.client_insert(request.args)
@@ -73,7 +95,9 @@ def shutdown():
 def db_test():
     table: dict = database.test_get()
     if not server.no_database:
-        logger.log_entry('Server', 'Database', logger.create_json('Db test request'))
+        logger.log_entry('Server', 'Database', json.dumps({
+            'description': 'Db test request'
+        }))
     return response_json(table, 200)
 
 
@@ -106,6 +130,11 @@ def db_statistics():
     except Exception:
         return Response(status=400)
 
+    logger.log_entry('Server', 'Database', json.dumps({
+        'login': login,
+        'description': 'Db statistics request'
+    }))
+
     if database.user_authenticate(login, password):
         s_id = database.user_get_id(login)
         if s_type == 'data_amount':
@@ -117,25 +146,35 @@ def db_statistics():
         elif s_type == 'login_history':
             data = database.session_select_login_dates(s_id)
             return Response(json.dumps(data), 200)
-        return response_json({"0": ["TODO1"], "1": ["TODO2"]}, 200)
+        else:
+            return Response(status=404)
     else:
         return Response(status=401)
 
 
-# TODO
-def db_logger():
+def db_logs():
     try:
         l_type: str = request.args['type']
+        format: str = request.args['format']
     except Exception:
         return Response(status=400)
 
+    logger.log_entry('Server', 'Database', json.dumps({
+        'description': 'Db logs request'
+    }))
+
     if l_type == 'performance':
-        data = database.statistics_select_data_amount(s_id)
-        return Response(json.dumps(data), 200)
+        data = database.logs_select_performance(logger.server_id)
     elif l_type == 'connection':
-        data = database.statistics_select_session_history(s_id)
-        return Response(json.dumps(data), 200)
+        data = database.logs_select_client(logger.server_id)
     elif l_type == 'server_activity':
-        data = database.session_select_login_dates(s_id)
-        return Response(json.dumps(data), 200)
-    return response_json({"0": ["TODO1"], "1": ["TODO2"]}, 200)
+        data = database.logs_select_activity(logger.server_id)
+    else:
+        return Response(status=404)
+
+    if format.upper() == 'HTML':
+        return Response(json_to_html(data), 200)
+    else:
+        return Response(json.dumps(data, indent=1), 200)
+
+

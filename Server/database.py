@@ -103,8 +103,6 @@ def server_insert(info: dict):
     cpu = "'" + info['cpu'] + "'"
     ram_size = str(info['ram_size'])
 
-    sql_query: str = ''
-
     if server_exists(int(s_id)):
         sql_query = 'update Servers set ' \
                     '[OS Name]=' + os + ',[OS Version]=' + os_ver + ',' + \
@@ -113,9 +111,11 @@ def server_insert(info: dict):
                     'where ServerID=' + s_id
     else:
         sql_query = 'insert into Servers values ' \
-                    '(' + s_id + ',' + s_id + ',' + \
+                    '(' + s_id + ',' + \
                     os + ',' + os_ver + ',' + p_ver + ',' + \
                     n_name + ',' + cpu + ',' + ram_size + ');'
+
+    print(sql_query)
 
     query_non_return(sql_query)
 
@@ -174,28 +174,64 @@ def user_authenticate(login: str, passwd: str) -> bool:
         return True
 
 
-# Entries
+# Logs
 
-def entries_max_id() -> int:
-    sql_query = 'select max(EntryID) from Entries;'
-    result = select_one_value(sql_query)
-    if result == 'None':
-        result = '0'
-    return int(result)
-
-
-def entries_insert(entry_type: str, event: str, content: str) -> None:
+def logs_insert(s_id: int, entry_type: str, event: str, content: str) -> None:
     if content == '':
         content = 'null'
     else:
         content = '\'' + content + '\''
 
-    e_id = str(entries_max_id() + 1)
-
     date = '\'' + datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '\''
-    sql_query = 'insert into Entries values' + \
-                '(' + e_id + ',\'' + entry_type + '\',\'' + event + '\',' + content + ',' + date + ')'
+    sql_query = 'insert into Logs values' + \
+                '(' + str(s_id) + ',\'' + entry_type + '\',\'' + event + '\',' + content + ',' + date + ')'
     query_non_return(sql_query)
+
+
+def logs_select_performance(s_id: int) -> dict:
+    conn = connect()
+    cursor = conn.cursor()
+    sql_query: str = 'select Content, [Date] from Logs ' + \
+                     'where ServerID = ' + str(s_id) + " and [Event]='Performance';"
+    cursor.execute(sql_query)
+
+    data: dict = table_to_dict(cursor)
+    for key in data.keys():
+        if key == '0':
+            pass
+        else:
+            data[key][1] = data[key][1].strftime('%Y-%m-%d %H:%M:%S')
+    return data
+
+
+def logs_select_activity(s_id: int) -> dict:
+    conn = connect()
+    cursor = conn.cursor()
+    sql_query: str = 'select [Event], Content, [Date] from Logs ' + \
+                     'where ServerID = ' + str(s_id) + " and [Type]='Server' and [Event]!='Performance';"
+    cursor.execute(sql_query)
+    data: dict = table_to_dict(cursor)
+    for key in data.keys():
+        if key == '0':
+            pass
+        else:
+            data[key][2] = data[key][2].strftime('%Y-%m-%d %H:%M:%S')
+    return data
+
+
+def logs_select_client(s_id: int) -> dict:
+    conn = connect()
+    cursor = conn.cursor()
+    sql_query: str = 'select [Type], Content, [Date] from Logs ' + \
+                     'where ServerID = ' + str(s_id) + " and [Type]='Client';"
+    cursor.execute(sql_query)
+    data: dict = table_to_dict(cursor)
+    for key in data.keys():
+        if key == '0':
+            pass
+        else:
+            data[key][2] = data[key][2].strftime('%Y-%m-%d %H:%M:%S')
+    return data
 
 
 # Statistics
@@ -272,7 +308,7 @@ def session_insert(s_id: int, u_id: int, ser_id: int) -> None:
     query_non_return(sql_query)
 
 
-def session_select_login_dates(s_id: int):
+def session_select_login_dates(s_id: int) -> dict:
     conn = connect()
     cursor = conn.cursor()
     sql_query: str = 'select [Date] from [Sessions] where UserID=' + str(s_id)
@@ -286,34 +322,6 @@ def session_select_login_dates(s_id: int):
         else:
             data[key][0] = data[key][0].strftime('%Y-%m-%d %H:%M')
     return data
-
-
-# Loggers
-
-def loggers_exists(l_id: int) -> bool:
-    sql_query = 'select * from Loggers ' + \
-                'where LoggerID=' + str(l_id)
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute(sql_query)
-    row = cursor.fetchone()
-
-    result: bool = False
-
-    if row is not None:
-        result = True
-    conn.close()
-    return result
-
-
-def loggers_insert(s_id: int):
-    sql_query = 'insert into Loggers values' + \
-                '(' + str(s_id) + ',' + str(s_id) + ')'
-    query_non_return(sql_query)
-
-
-def loggers_select_connection():
-    pass
 
 
 # Clients
@@ -343,7 +351,7 @@ def client_difference(info) -> bool:
     return result
 
 
-def client_insert(info):
+def client_insert(info) -> None:
     if client_difference(info):
         u_id = str(user_get_id(info['login']))
         os = "'" + info['os'] + "'"

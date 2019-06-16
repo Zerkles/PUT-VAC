@@ -24,7 +24,7 @@ class TcpServer {
         return null;
     }
 
-    public void close() {
+    void close() {
         if (serverSocket != null) {
             try {
                 serverSocket.close();

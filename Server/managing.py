@@ -147,8 +147,6 @@ def add_client(request) -> str:
     login: str = request.args['login']
     passwd: str = request.args['passwd']
 
-    print(request.args)
-
     if database.user_authenticate(login, passwd):
         client_tcp_port = tcp_port
         client_rtp_port = rtp_port
@@ -166,7 +164,6 @@ def add_client(request) -> str:
         client_json_str: str = json.dumps(client_json)
         rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
         rtp_server_socket.send(client_json_str.encode())
-        print("Client info: " + client_json_str)
 
         recv_data = rtp_server_socket.recv(4)
         streamer_tcp_port = int.from_bytes(recv_data, "big")
@@ -184,13 +181,12 @@ def add_client(request) -> str:
         proc.start()
         global_lock.release()
 
-        logger.log_entry('Client', 'Connected', '{ login: "' + login + '"')
+        logger.log_entry('Client', 'Connected', '{ login: "' + login + '"}')
         # End critical section
 
         # Building response
         response_json = {'tcp_port': client_tcp_port, 'rtp_port': client_rtp_port}
         response_json_str = json.dumps(response_json)
-        print("Response: " + response_json_str)
         return response_json_str
 
     else:
@@ -221,7 +217,7 @@ def remove_client(request) -> str:
         rtp_server_socket.send(len(client_json_str).to_bytes(4, byteorder='big'))
         rtp_server_socket.send(client_json_str.encode())
 
-        logger.log_entry('Client', 'Disconnected', '{ login: "' + request.args['login'] + '"')
+        logger.log_entry('Client', 'Disconnected', '{ login: "' + request.args['login'] + '"}')
 
         print("Client disconnected: " + request.remote_addr)
         return 'disconnect success'

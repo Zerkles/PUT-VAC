@@ -81,12 +81,12 @@ public class RtpServer implements RTPAppIntf, Runnable {
         stop = false;
     }
 
-    public void shutdown() {
-        if(rtpSocket != null) {
+    void shutdown() {
+        if (rtpSocket != null) {
             rtpSocket.close();
             rtpSocket = null;
         }
-        if(rtcpSocket != null) {
+        if (rtcpSocket != null) {
             rtcpSocket.close();
             rtcpSocket = null;
         }

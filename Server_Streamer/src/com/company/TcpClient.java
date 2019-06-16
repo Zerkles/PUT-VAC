@@ -128,7 +128,7 @@ class TcpClient {
         }
     }
 
-    void close(){
+    void close() {
         try {
             socket.close();
         } catch (IOException e) {

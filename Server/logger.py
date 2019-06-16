@@ -42,7 +42,7 @@ def server() -> int:
 
 
 def log_entry(entry_type: str, event: str, content: str) -> None:
-    database.entries_insert(entry_type, event, content)
+    database.logs_insert(server_id, entry_type, event, content)
 
 
 def performance() -> None:

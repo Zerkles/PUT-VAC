@@ -20,7 +20,12 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 api = Api(app, version='1.0', title='VAC API',
           description='An API for VAC project')
 
+ns_db = api.namespace('VAC/db', description='Operations related to database')
+ns_vac = api.namespace('VAC', description='Operations related to base functionality')
+
 models: Models = Models(api)
+
+# Server variables
 
 no_streamer: bool = False
 no_database: bool = False
@@ -28,9 +33,8 @@ no_database: bool = False
 server_id: int
 streamer_port: int = 9999
 
-ns_db = api.namespace('VAC/db', description='Operations related to database')
-ns_vac = api.namespace('VAC', description='Operations related to base functionality')
 
+# VAC routes
 
 @api.representation('text/html')
 def output_html(data, code, headers):
@@ -43,6 +47,14 @@ def output_html(data, code, headers):
 @ns_vac.response(200, 'Success')
 @ns_vac.response(401, 'Unauthorized')
 class Login(Resource):
+    @ns_vac.doc('login', params={
+        'login': 'User login',
+        'passwd': 'User login',
+        'os': 'Client OS name',
+        'os_ver': 'Client OS version',
+        'brand': 'Client device brand',
+        'model': 'Client device model'
+    })
     def get(self):
         """
         Authenticates user
@@ -55,6 +67,10 @@ class Login(Resource):
 @ns_vac.response(200, 'Success')
 @ns_vac.response(401, 'Unauthorized')
 class Connect(Resource):
+    @ns_vac.doc('connect', params={
+        'login': 'User login',
+        'passwd': 'User password'
+    })
     def get(self):
         """
         Executes connect procedure
@@ -67,6 +83,10 @@ class Connect(Resource):
 @ns_vac.response(200, 'Success')
 @ns_vac.response(409, 'Not connected')
 class Disconnect(Resource):
+    @ns_vac.doc('disconnect', params={
+        'login': 'User login',
+        'passwd': 'User password'
+    })
     def get(self):
         """
         Disconnects connected client
@@ -166,10 +186,19 @@ class DbStatistics(Resource):
         return resp
 
 
-# TODO
-@app.route('/Loggers', methods=['GET'])
-def db_logger():
-    return request_handling.db_logger()
+@ns_db.route('/Logs', endpoint='Logs')
+@ns_db.response(200, 'Success', models.db_table)
+@ns_db.response(400, 'Missing arguments')
+class DbLogs(Resource):
+    @ns_db.doc('get_logs', params={
+        'type': 'Type of data to get from table',
+        'format': 'Data format to receive'
+    })
+    def get(self):
+        """
+        Returns chosen entry types from logs
+        """
+        return request_handling.db_logs()
 
 
 def main():
@@ -188,10 +217,7 @@ def main():
         server_id = logger.server()
         managing.server_id = server_id
         logger.server_id = server_id
-        if not database.loggers_exists(server_id):
-            database.loggers_insert(server_id)
-        if not no_database:
-            logger.log_entry('Server', 'Started', '')
+        logger.log_entry('Server', 'Started', '')
 
     atexit.register(managing.cleanup)
 

@@ -9,7 +9,7 @@ public class Main {
     private static int tcpPort = 10000;
 
     public static void main(String[] args) {
-        TcpServer server = new TcpServer(49152);
+        TcpServer server = new TcpServer(9999);
         Queue<ThreadStreamerPair> threadQueue = new LinkedList<>();
 
         while (true) {
