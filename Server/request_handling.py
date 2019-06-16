@@ -9,7 +9,7 @@ import server
 
 
 def response_json(data: dict, status: int) -> Response:
-    json_str = json.dumps(data)
+    json_str = json.dumps(data, indent=1)
     response = Response(status)
     response.data = json_str
     response.content_type = 'text/json'

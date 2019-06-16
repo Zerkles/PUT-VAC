@@ -27,7 +27,7 @@ models: Models = Models(api)
 
 # Server variables
 
-no_streamer: bool = False
+no_streamer: bool = True
 no_database: bool = False
 
 server_id: int
@@ -129,6 +129,16 @@ class Shutdown(Resource):
         """
         resp = request_handling.shutdown()
         return resp
+
+    @ns_vac.route('/schema', endpoint='schema')
+    @ns_vac.response(200, 'Success')
+    class Shutdown(Resource):
+        @ns_vac.doc('schema')
+        def get(self):
+            """
+            Returns swagger json
+            """
+            return request_handling.response_json(api.__schema__, 200)
 
 
 # Database routes
