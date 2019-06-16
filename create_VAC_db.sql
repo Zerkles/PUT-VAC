@@ -101,7 +101,7 @@ CREATE TABLE [dbo].[Logs](
 	[ServerID] [int] NOT NULL,
 	[Type] [nvarchar](20) NOT NULL,
 	[Event] [nvarchar](40) NOT NULL,
-	[Content] [text] NULL,
+	[Content] [nvarchar](200) NULL,
 	[Date] [datetime] NOT NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
