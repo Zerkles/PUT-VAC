@@ -17,7 +17,7 @@ Press CAMERA button to start the video-audio converting part, remember to press 
 As our project implements primitive microservice architecture, it needs more than one program to run in order to achieve full functionality. In brief you have to run RTP streamer, docker with database container and Flask application to setup server. Then all you have to do is installing client application, log in and here you go!
 
 ## Used Tools
-We used JetBrains IDE's (intelliJ IDEA, PyCharm) to program server applications and Android Studio for client. For database setup we used Docker framework and MS SQL container.
+We used JetBrains IDE's (intelliJ IDEA, PyCharm) to program server applications and Android Studio for client. For database setup we used Docker platform and MS SQL container.
 
 ## Contributions
   * [Encode Image In Sound With Python](https://www.hackster.io/sam1902/encode-image-in-sound-with-python-f46a3f)
